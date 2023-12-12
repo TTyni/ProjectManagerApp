@@ -20,7 +20,7 @@ usersRouter.post(
     if (foundUser) {
       return res.status(404).send({ error: "Email exists" });
     }
-    const newUser = await createUser(email, password)
+    const newUser = await createUser(email, password);
     res.status(200).json({ newUser });
   }
 );
@@ -37,7 +37,7 @@ usersRouter.get("/:id", async (req, res) => {
   if (!user) {
     return res.status(404).send({ error: "Couldnt find user" });
   }
-    res.send(user);
+  res.send(user);
 });
 
 usersRouter.put(
@@ -57,19 +57,19 @@ usersRouter.put(
       return res.status(404).send({ error: "Couldnt find user" });
     }
 
-      if (email) {
-        const findUserEmail = await getUserByEmail(email);
-        if (findUserEmail) {
-          return res.status(404).send({ error: "Email exists" });
-        }
-        user.email = email;
+    if (email) {
+      const findUserEmail = await getUserByEmail(email);
+      if (findUserEmail) {
+        return res.status(404).send({ error: "Email exists" });
       }
-      if (password) {
-        user.password = password;
-      }
-      const updatedUser = await updateUser(id, user);
-      res.send(updatedUser);
+      user.email = email;
     }
+    if (password) {
+      user.password = password;
+    }
+    const updatedUser = await updateUser(id, user);
+    res.send(updatedUser);
+  }
 );
 
 usersRouter.delete("/:id", async (req, res) => {
@@ -78,8 +78,8 @@ usersRouter.delete("/:id", async (req, res) => {
   if (!user) {
     return res.status(404).send({ error: "Couldnt find user" });
   }
-    const deletedUser = await deleteUser(id);
-    res.status(200).send({ message: `deleted user ${deletedUser}` });
+  const deletedUser = await deleteUser(id);
+  res.status(200).send({ message: `deleted user ${deletedUser}` });
 });
 
 export default usersRouter;

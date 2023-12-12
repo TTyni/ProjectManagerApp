@@ -13,4 +13,3 @@ server.use(express.urlencoded({ extended: false }));
 server.use("/user", usersRouter);
 
 server.listen(PORT, () => console.log("Listening to port", PORT));
-
