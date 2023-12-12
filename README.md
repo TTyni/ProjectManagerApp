@@ -7,7 +7,7 @@ Description of the project here
 to run only database in docker run following command:
 
 ````
-docker-compose -f docker-compose-db.yml up
+docker-compose up --build
 ````
 
 and start backend on ./backend by following command:
