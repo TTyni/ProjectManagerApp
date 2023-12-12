@@ -9,7 +9,7 @@
     "start": "prisma migrate deploy && node ./dist/index.js",
     "dev": "tsx watch ./src/index.ts",
     "build": "tsc",
-    "prisma:migration": "prisma migrate dev --name init"
+    "prisma:migration": "prisma migrate dev"
   },
   "keywords": [],
   "author": "",
