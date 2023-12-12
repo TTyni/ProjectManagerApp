@@ -7,7 +7,7 @@ import {
   getUserByEmail,
   updateUser,
   deleteUser
-} from "../services/userService";
+} from "../services/userService.js";
 
 const usersRouter = Router();
 
