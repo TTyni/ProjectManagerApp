@@ -6,7 +6,7 @@ dotenv.config();
 
 const server = express();
 server.use(cors());
-const PORT = process.env.PORT;
+const PORT = process.env.BACKEND_PORT;
 server.use(express.json());
 server.use(express.urlencoded({ extended: false }));
 
