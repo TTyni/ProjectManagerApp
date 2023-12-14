@@ -1,12 +1,22 @@
 import express from "express";
+import session from "express-session";
 import cors from "cors";
 import dotenv from "dotenv";
 import usersRouter from "./routes/userRouter.js";
 dotenv.config();
 
-const server = express();
-server.use(cors());
 const PORT = process.env.BACKEND_PORT;
+const sessionSecret = process.env.BACKEND_SESSION_SECRET!;
+
+const server = express();
+
+server.use(session({
+  secret: sessionSecret,
+  resave: false,
+  saveUninitialized: false,
+}));
+
+server.use(cors());
 server.use(express.json());
 server.use(express.urlencoded({ extended: false }));
 
