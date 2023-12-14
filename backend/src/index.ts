@@ -1,10 +1,8 @@
 import express from "express";
 import session from "express-session";
 import cors from "cors";
-import dotenv from "dotenv";
 import usersRouter from "./routes/userRouter.js";
 import projectsRouter from "./routes/projectRouter.js";
-dotenv.config();
 
 const PORT = process.env.BACKEND_PORT;
 const sessionSecret = process.env.BACKEND_SESSION_SECRET!;
