@@ -9,11 +9,15 @@ const sessionSecret = process.env.BACKEND_SESSION_SECRET!;
 
 const server = express();
 
-server.use(session({
-  secret: sessionSecret,
-  resave: false,
-  saveUninitialized: false,
-}));
+server.use(
+  session({
+    secret: sessionSecret,
+    resave: true,
+    saveUninitialized: false,
+    rolling: true,
+    cookie: { maxAge: 1000 * 60 * 60 * 24 },
+  })
+);
 
 server.use(cors());
 server.use(express.json());
