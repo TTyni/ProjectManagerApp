@@ -9,7 +9,7 @@ services:
       POSTGRES_PASSWORD: $PG_PASSWORD
       POSTGRES_DB: $PG_DATABASE
     volumes:
-      - /var/lib/postgresql/data
+      - postgresData:/var/lib/postgresql/data
     healthcheck:
       test: pg_isready -U $PG_USERNAME -d $PG_DATABASE
       interval: 1s
@@ -27,3 +27,6 @@ services:
       DATABASE_URL: "postgresql://${PG_USERNAME}:${PG_PASSWORD}@db:${PG_PORT}/${PG_DATABASE}?schema=public"
       BACKEND_PORT: $BACKEND_PORT
       BACKEND_SESSION_SECRET: $BACKEND_SESSION_SECRET
+
+volumes:
+  postgresData:
