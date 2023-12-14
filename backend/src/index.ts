@@ -3,6 +3,8 @@ import session from "express-session";
 import cors from "cors";
 import usersRouter from "./routes/userRouter.js";
 import projectsRouter from "./routes/projectRouter.js";
+import requestLog from "./middlewares/requestLog.js";
+import unknownEndpoint from "./middlewares/unknownEndpoint.js";
 
 const PORT = process.env.BACKEND_PORT;
 const sessionSecret = process.env.BACKEND_SESSION_SECRET!;
@@ -22,8 +24,10 @@ server.use(
 server.use(cors());
 server.use(express.json());
 server.use(express.urlencoded({ extended: false }));
+server.use(requestLog);
 
 server.use("/user", usersRouter);
 server.use("/projects", projectsRouter);
 
+server.use(unknownEndpoint);
 server.listen(PORT, () => console.log("Listening to port", PORT));
