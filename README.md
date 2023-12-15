@@ -7,6 +7,7 @@ Description of the project here
 to run only database in docker run following command:
 
 ````
+copy .env.example to .env
 docker-compose up --build
 ````
 
