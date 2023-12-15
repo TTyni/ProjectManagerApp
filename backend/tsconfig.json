@@ -7,10 +7,9 @@
     "module": "Node16",
     "target": "ES2022",
     "outDir": "./dist/",
-    "rootDir": "./src/",
     "typeRoots": [
       "./node_modules/@types",
       "./types",
     ]
-  }
+  },
 }

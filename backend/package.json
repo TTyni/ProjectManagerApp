@@ -8,7 +8,7 @@
     "test": "vitest",
     "start": "prisma migrate deploy && node ./dist/index.js",
     "dev": "tsx watch -r dotenv/config ./src/index.ts",
-    "build": "tsc",
+    "build": "tsc -p tsconfig-build.json",
     "prisma:migration": "prisma migrate dev"
   },
   "keywords": [],

@@ -15,7 +15,7 @@ afterAll(async () => {
 
 describe("Server", () => {
   it("Login with valid data", async () => {
-    const response = await request(server)
+    await request(server)
       .post("/user/login")
       .send({ email: "pekka", password: "salainen" })
       .expect(200)
