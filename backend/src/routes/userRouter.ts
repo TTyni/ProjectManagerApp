@@ -16,9 +16,13 @@ usersRouter.post("/register", async (req, res, next) => {
   // Username missing and password hashing
   const { email, password } = req.body;
 
+  if( !email || !password || typeof email === "string" || typeof password === "string") {
+    return res.status(400).json({error: "Missing email or password"});
+  }
+
   const foundUser = await getUserByEmail(email);
   if (foundUser) {
-    return res.status(400).send({ error: "Email already exists" });
+    return res.status(409).send({ error: "Email already exists" });
   }
   const newUser = await createUser(email, password);
   req.session.regenerate((err) => {
@@ -38,7 +42,6 @@ usersRouter.post("/login", async (req, res, next) => {
   req.session.regenerate((err) => {
     if (err) next();
     req.session.userId = foundUser.id;
-    console.log(typeof foundUser.id);
     res.status(200).json({ foundUser });
   });
 });
@@ -94,8 +97,8 @@ usersRouter.put("/:id(\\d+)", authenticate, async (req, res) => {
   res.send(updatedUser);
 });
 
-usersRouter.delete("/:id(\\d+)", authenticate, async (req, res) => {
-  const id = parseInt(req.params.id);
+usersRouter.delete("/", authenticate, async (req, res) => {
+  const id = req.session.userId!;
   const user = await getUserById(id);
   if (!user) {
     return res.status(404).send({ error: "Couldnt find user" });
