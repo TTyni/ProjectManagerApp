@@ -32,8 +32,10 @@
   },
   "dependencies": {
     "@prisma/client": "^5.7.0",
+    "argon2": "^0.31.2",
     "cors": "^2.8.5",
     "express": "^4.18.2",
-    "express-session": "^1.17.3"
+    "express-session": "^1.17.3",
+    "yup": "^1.3.3"
   }
 }
