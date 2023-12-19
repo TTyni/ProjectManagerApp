@@ -10,24 +10,24 @@ let dummyUserId: number;
 
 beforeAll(async () => {
   const resDummyUser = await req
-    .post("/user/register")
+    .post("/users/register")
     .send({ email: "dummy@gmail.com", name: "dummy", password: "salainen" });
 
   dummyUserId = resDummyUser.body.id;
 
   await req
-    .post("/user/register")
+    .post("/users/register")
     .send({ email: "pekka1@gmail.com", name: "pekka1", password: "salainen" });
 });
 
 afterAll(async () => {
   await req
-    .post("/user/login")
+    .post("/users/login")
     .send({ email: "pekka1@gmail.com", password: "salainen" })
     .expect(200)
     .expect("Content-Type", /json/);
 
-  await req.delete("/user/delete");
+  await req.delete("/users/delete");
 });
 
 describe("Project endpoint tests", () => {
@@ -146,7 +146,7 @@ describe("Project endpoint tests", () => {
 
   it("Logins dummy user", async () => {
     await req
-      .post("/user/login")
+      .post("/users/login")
       .send({ email: "dummy@gmail.com", password: "salainen" })
       .expect(200)
       .expect("Content-Type", /json/);
@@ -179,7 +179,7 @@ describe("Project endpoint tests", () => {
 
   it("Login as project creator and delete user from project and delete projects", async () => {
     await req
-      .post("/user/login")
+      .post("/users/login")
       .send({ email: "pekka1@gmail.com", password: "salainen" })
       .expect(200)
       .expect("Content-Type", /json/);
@@ -206,13 +206,13 @@ describe("Project endpoint tests", () => {
 
   it("Logins dummy user", async () => {
     await req
-      .post("/user/login")
+      .post("/users/login")
       .send({ email: "dummy@gmail.com", password: "salainen" })
       .expect(200)
       .expect("Content-Type", /json/);
   });
 
   it("Delete dummy user", async () => {
-    await req.delete("/user/delete");
+    await req.delete("/users/delete");
   });
 });

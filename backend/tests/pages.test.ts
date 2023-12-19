@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-
 import {agent} from "supertest";
-import server from "../src/server.js";
 import { it, describe, beforeAll, afterAll, expect } from "vitest";
+import server from "../src/server.js";
 
 
 const request = agent(server);
@@ -13,11 +12,11 @@ let pageid = 0;
 
 beforeAll(async () => {
   await request
-    .post("/user/register")
+    .post("/users/register")
     .send({ email: "test2@mail.com", name: "pekka", password: "salainen" });
 
   await request
-    .post("/user/login")
+    .post("/users/login")
     .send({ email: "test2@mail.com", password: "salainen" });
 
   const testProject = await request.post("/projects/").send({ name: "testproject2" });
@@ -28,10 +27,10 @@ beforeAll(async () => {
 
 afterAll(async () => {
   await request
-    .post("/user/login")
+    .post("/users/login")
     .send({ email: "test@mail.com", password: "salainen" });
   await request
-    .delete("/user/delete/" + projectid);
+    .delete("/users/delete/" + projectid);
   await request
     .delete("/pages/delete/" + pageid);
 });
@@ -136,4 +135,3 @@ describe("server", () => {
   });
 
 });
-
