@@ -14,113 +14,130 @@ import {
 } from "../services/projectService.js";
 import { getUserById } from "../services/userService.js";
 import { Role } from "@prisma/client";
-import authenticate from "../middlewares/authenticate.js";
 
 const projectsRouter = Router();
 
-projectsRouter.post("/", authenticate, async (req, res) => {
-  const { name } = req.body;
-  if (!name) {
-    return res.status(400).json({ error: "Missing project name" });
+projectsRouter.post("/", async (req, res, next) => {
+  try {
+    const { name } = req.body;
+    if (!name || typeof name !== "string") {
+      return res.status(400).json({ error: "Missing project name" });
+    }
+    const userId = req.session.userId!;
+    const newProject = await createNewProject(name, userId);
+    res.status(200).json(newProject);
+  } catch (error) {
+    next(error);
   }
-  const userId = req.session.userId!;
-  const newProject = await createNewProject(name, userId);
-  res.status(200).json(newProject);
 });
 
-projectsRouter.get("/", authenticate, async (req, res) => {
-  const userId = req.session.userId!;
+projectsRouter.get("/", async (req, res, next) => {
+  try {
+    const userId = req.session.userId!;
 
-  const usersProjects = await getAllProjectsByUserId(userId);
-  if (!usersProjects) {
-    return res.status(404).json({ error: "Couldnt find user projects" });
+    const usersProjects = await getAllProjectsByUserId(userId);
+    if (usersProjects.length === 0) {
+      return res.status(404).json({ error: "Couldnt find user projects" });
+    }
+
+    res.json(usersProjects);
+  } catch (error) {
+    next(error);
   }
-
-  res.json(usersProjects);
 });
 
-projectsRouter.delete("/:pid(\\d+)", authenticate, async (req, res) => {
-  const projectId = parseInt(req.params.pid);
-  const project = await getProjectById(projectId);
-  const userId = req.session.userId!;
-  if (!project) {
-    return res.status(404).json({ error: "Couldnt find project" });
-  }
-  const findExistingUser = await checkForUserExistingOnProject(
-    userId,
-    projectId
-  );
+projectsRouter.delete("/:pid(\\d+)", async (req, res, next) => {
+  try {
+    const projectId = parseInt(req.params.pid);
+    const project = await getProjectById(projectId);
+    const userId = req.session.userId!;
+    if (!project) {
+      return res.status(404).json({ error: "Couldnt find project" });
+    }
+    const findExistingUser = await checkForUserExistingOnProject(
+      userId,
+      projectId
+    );
 
-  if (!findExistingUser) {
-    return res.status(401).json({ error: "User is not on the project" });
-  }
-  if (findExistingUser.role !== Role.manager) {
-    return res.status(401).json({ error: "Manager role required" });
-  }
-  const deletedProject = await deleteProject(projectId);
+    if (!findExistingUser) {
+      return res.status(401).json({ error: "User is not on the project" });
+    }
+    if (findExistingUser.role !== Role.manager) {
+      return res.status(401).json({ error: "Manager role required" });
+    }
+    const deletedProject = await deleteProject(projectId);
 
-  res.status(200).json(deletedProject);
+    res.status(200).json(deletedProject);
+  } catch (error) {
+    next(error);
+  }
 });
 
-projectsRouter.put("/:pid(\\d+)", authenticate, async (req, res) => {
-  const projectId = parseInt(req.params.pid);
-  const userId = req.session.userId!;
-  const { name } = req.body;
+projectsRouter.put("/:pid(\\d+)", async (req, res, next) => {
+  try {
+    const projectId = parseInt(req.params.pid);
+    const userId = req.session.userId!;
+    const { name } = req.body;
 
-  if (!name) {
-    return res.status(400).json({ error: "Missing project name" });
+    if (!name || typeof name !== "string") {
+      return res.status(400).json({ error: "Missing project name" });
+    }
+
+    const project = await getProjectById(projectId);
+    if (!project) {
+      return res.status(404).json({ error: "Couldnt find project" });
+    }
+
+    const findExistingUser = await checkForUserExistingOnProject(
+      userId,
+      projectId
+    );
+
+    if (!findExistingUser) {
+      return res.status(401).json({ error: "User is not on the project" });
+    }
+    if (findExistingUser.role !== Role.manager) {
+      return res.status(401).json({ error: "Manager role required" });
+    }
+
+    const updatedProject = await updateProject(projectId, name);
+    res.json(updatedProject);
+  } catch (error) {
+    next(error);
   }
-
-  const project = await getProjectById(projectId);
-  if (!project) {
-    return res.status(404).json({ error: "Couldnt find project" });
-  }
-
-  const findExistingUser = await checkForUserExistingOnProject(
-    userId,
-    projectId
-  );
-
-  if (!findExistingUser) {
-    return res.status(401).json({ error: "User is not on the project" });
-  }
-  if (findExistingUser.role !== Role.manager) {
-    return res.status(401).json({ error: "Manager role required" });
-  }
-
-  const updatedProject = await updateProject(projectId, name);
-  res.json(updatedProject);
 });
 
-projectsRouter.get("/:pid(\\d+)", authenticate, async (req, res) => {
-  const projectId = parseInt(req.params.pid);
-  const userId = req.session.userId!;
-  const project = await getProjectById(projectId);
-  if (!project) {
-    return res.status(404).json({ error: "Couldnt find project" });
-  }
-  const findExistingUser = await checkForUserExistingOnProject(
-    userId,
-    projectId
-  );
+projectsRouter.get("/:pid(\\d+)", async (req, res, next) => {
+  try {
+    const projectId = parseInt(req.params.pid);
+    const userId = req.session.userId!;
+    const project = await getProjectById(projectId);
+    if (!project) {
+      return res.status(404).json({ error: "Couldnt find project" });
+    }
+    const findExistingUser = await checkForUserExistingOnProject(
+      userId,
+      projectId
+    );
 
-  if (!findExistingUser) {
-    return res.status(401).json({ error: "User is not on the project" });
-  }
+    if (!findExistingUser) {
+      return res.status(401).json({ error: "User is not on the project" });
+    }
 
-  const allProjectDetails = await getProjectAllDetailsById(projectId);
-  res.json(allProjectDetails);
+    const allProjectDetails = await getProjectAllDetailsById(projectId);
+    res.json(allProjectDetails);
+  } catch (error) {
+    next(error);
+  }
 });
 
-projectsRouter.post(
-  "/:pid(\\d+)/users/:uid(\\d+)",
-  authenticate,
-  async (req, res) => {
+projectsRouter.post("/:pid(\\d+)/users/:uid(\\d+)", async (req, res, next) => {
+  try {
     const projectId = parseInt(req.params.pid);
     const userId = parseInt(req.params.uid);
     const sessionUserId = req.session.userId!;
     const { role } = req.body;
-    if (!role) {
+    if (!role || typeof role !== "string") {
       return res.status(400).json({ error: "Missing role" });
     }
     if (role !== Role.manager && role !== Role.editor && role !== Role.viewer) {
@@ -151,8 +168,6 @@ projectsRouter.post(
       return res.status(400).json({ error: "User is already on this project" });
     }
 
-
-
     const findUser = await getUserById(userId);
     if (!findUser) {
       return res.status(404).json({ error: "Couldnt find user" });
@@ -162,22 +177,21 @@ projectsRouter.post(
       return res.status(404).json({ error: "Couldnt find project" });
     }
 
-
     const newUserToProject = await addUserToProject(userId, projectId, role);
 
     res.json(newUserToProject);
+  } catch (error) {
+    next(error);
   }
-);
+});
 
-projectsRouter.put(
-  "/:pid(\\d+)/users/:uid(\\d+)",
-  authenticate,
-  async (req, res) => {
+projectsRouter.put("/:pid(\\d+)/users/:uid(\\d+)", async (req, res, next) => {
+  try {
     const projectId = parseInt(req.params.pid);
     const userId = parseInt(req.params.uid);
     const sessionUserId = req.session.userId!;
     const { role } = req.body;
-    if (!role) {
+    if (!role || typeof role !== "string") {
       return res.status(400).json({ error: "Missing role" });
     }
 
@@ -224,56 +238,61 @@ projectsRouter.put(
     );
 
     res.json(newUserRoleToProject);
+  } catch (error) {
+    next(error);
   }
-);
+});
 
 projectsRouter.delete(
   "/:pid(\\d+)/users/:uid(\\d+)",
-  authenticate,
-  async (req, res) => {
-    const projectId = parseInt(req.params.pid);
-    const userId = parseInt(req.params.uid);
-    const sessionUserId = req.session.userId!;
-    const findUser = await getUserById(userId);
+  async (req, res, next) => {
+    try {
+      const projectId = parseInt(req.params.pid);
+      const userId = parseInt(req.params.uid);
+      const sessionUserId = req.session.userId!;
+      const findUser = await getUserById(userId);
 
-    const findProject = await getProjectById(projectId);
-    if (!findProject) {
-      return res.status(404).json({ error: "Couldnt find project" });
+      const findProject = await getProjectById(projectId);
+      if (!findProject) {
+        return res.status(404).json({ error: "Couldnt find project" });
+      }
+
+      const findExistingUser = await checkForUserExistingOnProject(
+        userId,
+        projectId
+      );
+      if (!findExistingUser) {
+        return res.status(400).json({ error: "User is not on the project" });
+      }
+
+      const findSessionUser = await checkForUserExistingOnProject(
+        sessionUserId,
+        projectId
+      );
+
+      if (!findSessionUser) {
+        return res
+          .status(401)
+          .json({ error: "Session holder is not on this project" });
+      }
+
+      if (findSessionUser.role !== Role.manager) {
+        return res.status(401).json({ error: "Manager role required" });
+      }
+
+      if (!findUser) {
+        return res.status(404).json({ error: "Couldnt find user" });
+      }
+
+      const deletedUserFromProject = await removeUserFromProject(
+        userId,
+        projectId
+      );
+
+      res.json(deletedUserFromProject);
+    } catch (error) {
+      next(error);
     }
-
-    const findExistingUser = await checkForUserExistingOnProject(
-      userId,
-      projectId
-    );
-    if (!findExistingUser) {
-      return res.status(400).json({ error: "User is not on the project" });
-    }
-
-    const findSessionUser = await checkForUserExistingOnProject(
-      sessionUserId,
-      projectId
-    );
-
-    if (!findSessionUser) {
-      return res
-        .status(401)
-        .json({ error: "Session holder is not on this project" });
-    }
-
-    if (findSessionUser.role !== Role.manager) {
-      return res.status(401).json({ error: "Manager role required" });
-    }
-
-    if (!findUser) {
-      return res.status(404).json({ error: "Couldnt find user" });
-    }
-
-    const deletedUserFromProject = await removeUserFromProject(
-      userId,
-      projectId
-    );
-
-    res.json(deletedUserFromProject);
   }
 );
 export default projectsRouter;
