@@ -20,10 +20,9 @@ jobs:
       with:
           node-version: '20.x'
     - run: cp .env.example .env
-    - run: cd backend && npm ci
+    - run: cd backend && cp .env.example .env && npm ci
     - run: docker compose up -d
     - run: cd backend && npm run build --if-present
     - run: cd backend && npm test
       env:
         PG_PORT: ${{ job.services.postgres.ports[5432] }}
-        DATABASE_URL: postgresql://${PG_USERNAME}:${PG_PASSWORD}@localhost:${PG_PORT}/${PG_DATABASE}?schema=public
