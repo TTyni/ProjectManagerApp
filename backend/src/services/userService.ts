@@ -2,6 +2,14 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
+const selectUserFields = {
+  id: true,
+  email: true,
+  name: true,
+  created_at: true,
+  updated_at: true,
+};
+
 const createUser = async (email: string, name: string, password: string) => {
   const newUser = await prisma.users.create({
     data: {
@@ -9,19 +17,23 @@ const createUser = async (email: string, name: string, password: string) => {
       name,
       password,
     },
+    select: selectUserFields,
   });
 
   return newUser;
 };
 
 const getAllUsers = async () => {
-  const users = await prisma.users.findMany();
+  const users = await prisma.users.findMany({
+    select: selectUserFields,
+  });
   return users;
 };
 
 const getUserById = async (id: number) => {
   const user = await prisma.users.findUnique({
     where: { id },
+    select: selectUserFields,
   });
 
   return user;
@@ -45,6 +57,7 @@ const updateUser = async (id: number, data: dataType) => {
   const updatedUser = await prisma.users.update({
     where: { id },
     data,
+    select: selectUserFields,
   });
 
   return updatedUser;
@@ -53,6 +66,7 @@ const updateUser = async (id: number, data: dataType) => {
 const deleteUser = async (id: number) => {
   const deletedUser = await prisma.users.delete({
     where: { id },
+    select: selectUserFields,
   });
 
   return deletedUser;
