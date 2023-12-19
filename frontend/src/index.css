@@ -4,93 +4,114 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  button {
+    @apply text-dark-font btn-text-lg bg-primary-100 rounded py-3 px-6;
+  }
+
+  button:hover {
+    @apply bg-primary-200;
+  }
+
+  input {
+    @apply text-dark-font body-text-lg border border-solid border-grayscale-400 rounded p-3;
+  }
+}
+
 @layer utilities {
-    .heading-xxl {
-        font-family: "Kumbh Sans", sans-serif;
-        font-size: 3rem;
-        font-weight: 500;
-    }
+  .heading-xxl {
+    font-family: "Kumbh Sans", sans-serif;
+    font-size: 3rem;
+    font-weight: 500;
+  }
 
-    .heading-xl {
-        font-family: "Kumbh Sans", sans-serif;
-        font-size: 2.25rem;
-        font-weight: 700;
-    }
+  .heading-xl {
+    font-family: "Kumbh Sans", sans-serif;
+    font-size: 2.25rem;
+    font-weight: 700;
+  }
 
-    .heading-lg {
-        font-family: "Kumbh Sans", sans-serif;
-        font-size: 2rem;
-        font-weight: 500;
-    }
+  .heading-lg {
+    font-family: "Kumbh Sans", sans-serif;
+    font-size: 2rem;
+    font-weight: 500;
+  }
 
-    .heading-md {
-        font-family: "Kumbh Sans", sans-serif;
-        font-size: 1.5rem;
-        font-weight: 500;
-    }
+  .heading-md {
+    font-family: "Kumbh Sans", sans-serif;
+    font-size: 1.5rem;
+    font-weight: 500;
+  }
 
-    .heading-sm {
-        font-family: "Kumbh Sans", sans-serif;
-        font-size: 1.25rem;
-        font-weight: 700;
-    }
+  .heading-sm {
+    font-family: "Kumbh Sans", sans-serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+  }
 
-    .heading-xs {
-        font-family: "Kumbh Sans", sans-serif;
-        font-size: 1rem;
-        font-weight: 600;
-    }
+  .heading-xs {
+    font-family: "Kumbh Sans", sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+  }
 
-    .heading-xxs {
-        font-family: "Kumbh Sans", sans-serif;
-        font-size: 0.75rem;
-        font-weight: 600;
-    }
+  .heading-xxs {
+    font-family: "Kumbh Sans", sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
 
-    .body-text-lg {
-        font-family: "Noto Serif", serif;
-        font-size: 1.125rem;
-        font-weight: 400;
-    }
+  .body-text-lg {
+    font-family: "Noto Serif", serif;
+    font-size: 1.125rem;
+    font-weight: 400;
+  }
 
-    .body-text-m {
-        font-family: "Noto Serif", serif;
-        font-size: 1rem;
-        font-weight: 400;
-    }
+  .body-text-md {
+    font-family: "Noto Serif", serif;
+    font-size: 1rem;
+    font-weight: 400;
+  }
 
-    .body-text-sm {
-        font-family: "Noto Serif", serif;
-        font-size: 0.75rem;
-        font-weight: 400;
-    }
+  .body-text-sm {
+    font-family: "Noto Serif", serif;
+    font-size: 0.75rem;
+    font-weight: 400;
+  }
 
-    .label-text {
-        font-family: "Kumbh Sans", sans-serif;
-        font-size: 0.75rem;
-        font-weight: 400;
-    }
+  .label-text {
+    font-family: "Kumbh Sans", sans-serif;
+    font-size: 0.75rem;
+    font-weight: 400;
+  }
 
-    .btn-text-lg {
-        font-family: "Kumbh Sans", sans-serif;
-        font-size: 1.5rem;
-        font-weight: 700;
-    }
-    .btn-text-m {
-        font-family: "Kumbh Sans", sans-serif;
-        font-size: 1.125rem;
-        font-weight: 600;
-    }
+  .btn-text-xl {
+    font-family: "Kumbh Sans", sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
 
-    .btn-text-sm {
-        font-family: "Kumbh Sans", sans-serif;
-        font-size: 1rem;
-        font-weight: 600;
-    }
+  .btn-text-lg {
+    font-family: "Kumbh Sans", sans-serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+  }
 
-    .btn-text-xs {
-        font-family: "Kumbh Sans", sans-serif;
-        font-size: 0.875rem;
-        font-weight: 600;
-    }
+  .btn-text-md {
+    font-family: "Kumbh Sans", sans-serif;
+    font-size: 1.125rem;
+    font-weight: 600;
+  }
+
+  .btn-text-sm {
+    font-family: "Kumbh Sans", sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  .btn-text-xs {
+    font-family: "Kumbh Sans", sans-serif;
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
 }
