@@ -29,7 +29,6 @@ type registerUserSchemaType = yup.InferType<typeof registerUserSchema>;
 usersRouter.post("/register", validate(registerUserSchema), async (req: RequestBody<registerUserSchemaType>, res, next) => {
   try {
     const { email, name, password } = req.body;
-    console.log(name);
 
     const findUser = await getUserByEmail(email);
     if (findUser) {
@@ -37,13 +36,12 @@ usersRouter.post("/register", validate(registerUserSchema), async (req: RequestB
     }
 
     const hash = await argon2.hash(password);
-    console.log(hash);
     const newUser = await createUser(email, name, hash);
 
     req.session.regenerate((err) => {
       if (err) next(err);
       req.session.userId = newUser.id;
-      res.status(200).json(newUser);
+      return res.status(200).json(newUser);
     });
   } catch (err) {
     next(err);
@@ -63,7 +61,7 @@ usersRouter.post("/login", async (req, res, next) => {
       req.session.regenerate((err) => {
         if (err) next(err);
         req.session.userId = findUser.id;
-        res.status(200).json(findUser);
+        return res.status(200).json(findUser);
       });
     } else {
       return res.status(401).json({ error: "Email and password does not match" });
@@ -83,7 +81,7 @@ usersRouter.get("/logout", (req, res, next) => {
 // Remove this route
 usersRouter.get("/getallusers", authenticate, async (_, res) => {
   const users = await getAllUsers();
-  res.json(users);
+  return res.json(users);
 });
 
 const updateUserSchema = yup.object({
@@ -104,25 +102,26 @@ usersRouter.put("/update", authenticate, validate(updateUserSchema), async (req:
 
     const user = await getUserById(id);
     if (!user) {
-      console.log(id, user);
       return res.status(404).json({ error: "Couldnt find user" });
     }
+
+    const updatedUserData: updateUserSchemaType = {};
 
     if (email) {
       const findEmail = await getUserByEmail(email);
       if (findEmail) {
         return res.status(404).json({ error: "Email exists" });
       }
-      user.email = email;
+      updatedUserData.email = email;
     }
     if (password) {
-      user.password = await argon2.hash(password);
+      updatedUserData.password = await argon2.hash(password);
     }
     if (name) {
-      user.name = name;
+      updatedUserData.name = name;
     }
-    const updatedUser = await updateUser(id, user);
-    res.json(updatedUser);
+    const updatedUser = await updateUser(id, updatedUserData);
+    return res.status(200).json(updatedUser);
   } catch (err) {
     next(err);
   }
@@ -136,7 +135,7 @@ usersRouter.delete("/delete", authenticate, async (req, res, next) => {
       return res.status(404).json({ error: "User not found" });
     }
     const deletedUser = await deleteUser(id);
-    res.status(200).json(deletedUser);
+    return res.status(200).json(deletedUser);
   } catch (err) {
     next(err);
   }
