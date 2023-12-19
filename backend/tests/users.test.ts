@@ -7,31 +7,31 @@ const request = agent(server);
 
 beforeAll(async () => {
   await request
-    .post("/user/register")
+    .post("/users/register")
     .send({ email: "pekka@mail.com", name: "pekka", password: "salainen" });
 });
 
 afterAll(async () => {
   await request
-    .post("/user/login")
+    .post("/users/login")
     .send({ email: "pekka@mail.com", password: "salainen" });
   await request
-    .delete("/user/delete");
+    .delete("/users/delete");
 });
 
 describe("Server", () => {
   it("Register with valid data", async () => {
     await request
-      .post("/user/register")
+      .post("/users/register")
       .send({ email: "pekka222@mail.com", name: "pekka", password: "salainen" })
       .expect(200)
       .expect("Content-Type", /json/);
     await request
-      .delete("/user/delete");
+      .delete("/users/delete");
   });
   it("Register with invalid email", async () => {
     const res = await request
-      .post("/user/register")
+      .post("/users/register")
       .send({ email: "pekka", name: "pekka", password: "salainen" })
       .expect(400)
       .expect("Content-Type", /json/);
@@ -39,7 +39,7 @@ describe("Server", () => {
   });
   it("Register with invalid email 2", async () => {
     const res = await request
-      .post("/user/register")
+      .post("/users/register")
       .send({ email: "pekka@a.", name: "pekka", password: "salainen" })
       .expect(400)
       .expect("Content-Type", /json/);
@@ -47,7 +47,7 @@ describe("Server", () => {
   });
   it("Register without email", async () => {
     const res = await request
-      .post("/user/register")
+      .post("/users/register")
       .send({ name: "pekka", password: "salainen" })
       .expect(400)
       .expect("Content-Type", /json/);
@@ -55,7 +55,7 @@ describe("Server", () => {
   });
   it("Register without name", async () => {
     const res = await request
-      .post("/user/register")
+      .post("/users/register")
       .send({ email: "pekka@mail.com", password: "salainen" })
       .expect(400)
       .expect("Content-Type", /json/);
@@ -63,7 +63,7 @@ describe("Server", () => {
   });
   it("Register without password", async () => {
     const res = await request
-      .post("/user/register")
+      .post("/users/register")
       .send({ email: "pekka@mail.com", name: "pekka" })
       .expect(400)
       .expect("Content-Type", /json/);
@@ -71,7 +71,7 @@ describe("Server", () => {
   });
   it("Register without data", async () => {
     const res = await request
-      .post("/user/register")
+      .post("/users/register")
       .send({})
       .expect(400)
       .expect("Content-Type", /json/);
@@ -79,7 +79,7 @@ describe("Server", () => {
   });
   it("Register with GET", async () => {
     const res = await request
-      .get("/user/register")
+      .get("/users/register")
       .send({})
       .expect(404)
       .expect("Content-Type", /json/);
@@ -87,7 +87,7 @@ describe("Server", () => {
   });
   it("Login with GET", async () => {
     const res = await request
-      .get("/user/register")
+      .get("/users/register")
       .send({})
       .expect(404)
       .expect("Content-Type", /json/);
@@ -95,7 +95,7 @@ describe("Server", () => {
   });
   it("Login with valid data", async () => {
     const res = await request
-      .post("/user/login")
+      .post("/users/login")
       .send({ email: "pekka@mail.com", password: "salainen" })
       .expect(200)
       .expect("Content-Type", /json/);
@@ -103,13 +103,13 @@ describe("Server", () => {
   });
   it("Login twice", async () => {
     const res = await request
-      .post("/user/login")
+      .post("/users/login")
       .send({ email: "pekka@mail.com", password: "salainen" })
       .expect(200)
       .expect("Content-Type", /json/);
     expect(res.body.email).toBe("pekka@mail.com");
     const res2 = await request
-      .post("/user/login")
+      .post("/users/login")
       .send({ email: "pekka@mail.com", password: "salainen" })
       .expect(200)
       .expect("Content-Type", /json/);
@@ -117,7 +117,7 @@ describe("Server", () => {
   });
   it("Login with wrong password", async () => {
     const res = await request
-      .post("/user/login")
+      .post("/users/login")
       .send({ email: "pekka@mail.com", password: "EiOleSalainen" })
       .expect(401)
       .expect("Content-Type", /json/);
@@ -125,7 +125,7 @@ describe("Server", () => {
   });
   it("Login with wrong email", async () => {
     const res = await request
-      .post("/user/login")
+      .post("/users/login")
       .send({ email: "pekka@wrong.com", password: "EiOleSalainen" })
       .expect(401)
       .expect("Content-Type", /json/);
@@ -133,7 +133,7 @@ describe("Server", () => {
   });
   it("Login with invalid email", async () => {
     const res = await request
-      .post("/user/login")
+      .post("/users/login")
       .send({ email: "EiOlemassa", password: "salainen" })
       .expect(401)
       .expect("Content-Type", /json/);
@@ -141,7 +141,7 @@ describe("Server", () => {
   });
   it("Login without existing user", async () => {
     const res = await request
-      .post("/user/login")
+      .post("/users/login")
       .send({ email: "matti@mail.com", password: "salainen" })
       .expect(401)
       .expect("Content-Type", /json/);
@@ -149,16 +149,16 @@ describe("Server", () => {
   });
   it("Logout", async () => {
     const res = await request
-      .get("/user/logout")
+      .get("/users/logout")
       .expect(204);
     expect(res.body.email).toBeUndefined();
   });
   it("Logout and delete", async () => {
     await request
-      .get("/user/logout")
+      .get("/users/logout")
       .expect(204);
     const res = await request
-      .delete("/user/delete")
+      .delete("/users/delete")
       .expect(401)
       .expect("Content-Type", /json/);
     expect(res.body.email).toBeUndefined();
@@ -168,12 +168,12 @@ describe("Server", () => {
   });
   it("register and delete user", async () => {
     const resRegister = await request
-      .post("/user/register")
+      .post("/users/register")
       .send({ email: "pekka2@mail.com", name: "pekka", password: "salainen" })
       .expect(200)
       .expect("Content-Type", /json/);
     const resDelete = await request
-      .delete("/user/delete")
+      .delete("/users/delete")
       .expect(200)
       .expect("Content-Type", /json/);
     expect(resDelete.body.email).toBe("pekka2@mail.com");
@@ -182,10 +182,10 @@ describe("Server", () => {
   });
   it("Update password", async () => {
     await request
-      .post("/user/login")
+      .post("/users/login")
       .send({ email: "pekka@mail.com", password: "salainen" });
     const res = await request
-      .put("/user/update")
+      .put("/users/update")
       .send({ password: "salainen" })
       .expect(200)
       .expect("Content-Type", /json/);
@@ -193,10 +193,10 @@ describe("Server", () => {
   });
   it("Update name", async () => {
     await request
-      .post("/user/login")
+      .post("/users/login")
       .send({ email: "pekka@mail.com", password: "salainen" });
     const res = await request
-      .put("/user/update")
+      .put("/users/update")
       .send({ name: "Pekka" })
       .expect(200)
       .expect("Content-Type", /json/);
@@ -204,10 +204,10 @@ describe("Server", () => {
   });
   it("Update with invalid email", async () => {
     await request
-      .post("/user/login")
+      .post("/users/login")
       .send({ email: "pekka@mail.com", password: "salainen" });
     const res = await request
-      .put("/user/update")
+      .put("/users/update")
       .send({ email: "salainen" })
       .expect(400)
       .expect("Content-Type", /json/);
@@ -215,16 +215,16 @@ describe("Server", () => {
   });
   it("Update email", async () => {
     await request
-      .post("/user/login")
+      .post("/users/login")
       .send({ email: "pekka@mail.com", password: "salainen" });
     const res = await request
-      .put("/user/update")
+      .put("/users/update")
       .send({ email: "pekka300@mail.com" })
       .expect(200)
       .expect("Content-Type", /json/);
     expect(res.body.email).toBe("pekka300@mail.com");
     const res2 = await request
-      .put("/user/update")
+      .put("/users/update")
       .send({ email: "pekka@mail.com" })
       .expect(200)
       .expect("Content-Type", /json/);
@@ -232,10 +232,10 @@ describe("Server", () => {
   });
   it("Update without data", async () => {
     await request
-      .post("/user/login")
+      .post("/users/login")
       .send({ email: "pekka@mail.com", password: "salainen" });
     const res = await request
-      .put("/user/update")
+      .put("/users/update")
       .send()
       .expect(400)
       .expect("Content-Type", /json/);
@@ -243,10 +243,10 @@ describe("Server", () => {
   });
   it("Update empty name", async () => {
     await request
-      .post("/user/login")
+      .post("/users/login")
       .send({ email: "pekka@mail.com", password: "salainen" });
     const res = await request
-      .put("/user/update")
+      .put("/users/update")
       .send({ name: "" })
       .expect(400)
       .expect("Content-Type", /json/);
@@ -254,10 +254,10 @@ describe("Server", () => {
   });
   it("Update empty password", async () => {
     await request
-      .post("/user/login")
+      .post("/users/login")
       .send({ email: "pekka@mail.com", password: "salainen" });
     const res = await request
-      .put("/user/update")
+      .put("/users/update")
       .send({ password: "" })
       .expect(400)
       .expect("Content-Type", /json/);
@@ -265,10 +265,10 @@ describe("Server", () => {
   });
   it("Update empty email", async () => {
     await request
-      .post("/user/login")
+      .post("/users/login")
       .send({ email: "pekka@mail.com", password: "salainen" });
     const res = await request
-      .put("/user/update")
+      .put("/users/update")
       .send({ email: "" })
       .expect(400)
       .expect("Content-Type", /json/);

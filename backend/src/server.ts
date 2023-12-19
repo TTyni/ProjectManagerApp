@@ -27,7 +27,7 @@ server.use(express.json());
 server.use(express.urlencoded({ extended: false }));
 server.use(requestLog);
 
-server.use("/user", usersRouter);
+server.use("/users", usersRouter);
 server.use("/projects", authenticate, projectsRouter);
 server.use("/pages", authenticate, pagesRouter);
 
