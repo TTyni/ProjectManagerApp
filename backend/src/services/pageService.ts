@@ -9,17 +9,25 @@ export async function getpageById(id: number) {
   return page;
 }
 
-export async function createPage(name: string, projectid: number) {
+export async function createPage(
+  name: string,
+  projectid: number,
+  content: object
+) {
   const newPage = await prisma.pages.create({
-    data: { name: name, projectid: projectid },
+    data: { name: name, projectid: projectid, content: content },
   });
   return newPage;
 }
 
-export async function updatePage(id: number, name: string, projectid: number) {
+export async function updatePage(
+  id: number,
+  name: string,
+  content: object
+) {
   const page = await prisma.pages.update({
     where: { id: id },
-    data: { name: name, projectid: projectid },
+    data: { name: name, content: content },
   });
   return page;
 }

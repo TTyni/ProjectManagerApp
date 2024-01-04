@@ -5,15 +5,25 @@ import {
   updatePage,
   deletePage,
 } from "../services/pageService.js";
+import { checkForUserExistingOnProject } from "../services/projectService.js";
+import { Role } from "@prisma/client";
 
 const pagesRouter = Router();
 
 pagesRouter.get("/:id(\\d+)", async (req, res, next) => {
   try {
-    if (!req.params.id) return res.status(400).json({error: "missing parameters."});
-
+    const userid = req.session.userId!;
     const foundPage = await getpageById(parseInt(req.params.id));
+
     if (!foundPage) return res.status(404).json({ error: "Page not found" });
+
+    if (!foundPage.projectid || typeof foundPage.projectid !== "number" || !req.params.id) {
+      return res.status(400).json({ error: "missing parameters" });
+    }
+
+    const findUser = await checkForUserExistingOnProject(userid, foundPage.projectid);
+
+    if (!findUser) res.status(401).json({ error: "user not found on project" });
 
     return res.status(200).json(foundPage);
   } catch (error) {
@@ -23,11 +33,30 @@ pagesRouter.get("/:id(\\d+)", async (req, res, next) => {
 
 pagesRouter.post("/", async (req, res, next) => {
   try {
-    const { name, projectid  } = req.body;
-    if (!name || !projectid || typeof name !== "string" ||typeof projectid !== "number" )
-      return res.status(400).json({error: "missing parameters."});
+    const {
+      name,
+      projectid,
+      content ,
+    } = req.body;
+    const userid = req.session.userId!;
 
-    const newPage = await createPage(name, projectid);
+    if (
+      !name ||
+      !projectid ||
+      !content ||
+      typeof name !== "string" ||
+      typeof projectid !== "number" ||
+      typeof content !== "object"
+    ) {
+      return res.status(400).json({ error: "missing parameters" });
+    }
+
+    const findUser = await checkForUserExistingOnProject(userid, projectid);
+
+    if (findUser?.role !== (Role.editor && Role.manager))
+      res.status(401).json({ error: "missing role" });
+
+    const newPage = await createPage(name, projectid, content as object);
     return res.status(200).json(newPage);
   } catch (error) {
     next(error);
@@ -36,10 +65,16 @@ pagesRouter.post("/", async (req, res, next) => {
 
 pagesRouter.delete("/:id(\\d+)", async (req, res, next) => {
   try {
-    if (!req.params.id) return res.status(400).json({error: "missing parameters."});
-
+    const userid = req.session.userId!;
     const foundPage = await getpageById(parseInt(req.params.id));
-    if (!foundPage) return res.status(404).json({ error: "page doesn't exist." });
+
+    if (!foundPage)
+      return res.status(404).json({ error: "page doesn't exist" });
+
+    const findUser = await checkForUserExistingOnProject(userid, foundPage.projectid);
+
+    if (findUser?.role !== Role.manager)
+      res.status(401).json({ error: "missing role" });
 
     const page = await deletePage(parseInt(req.params.id));
     return res.status(200).json({ id: page.id });
@@ -50,14 +85,27 @@ pagesRouter.delete("/:id(\\d+)", async (req, res, next) => {
 
 pagesRouter.put("/:id(\\d+)", async (req, res, next) => {
   try {
-    const { name, projectid  }  = req.body;
-    if (!name || !projectid || !req.params.id || typeof name !== "string" ||typeof projectid !== "number" )
-      return res.status(400).json({error: "missing parameters."});
+    const {
+      name,
+      content,
+    } = req.body;
 
     const foundPage = await getpageById(parseInt(req.params.id));
-    if (!foundPage) return res.status(404).json({ error: "page doesn't exist." });
+    if (!foundPage)
+      return res.status(404).json({ error: "page doesn't exist" });
 
-    const updatedPage = await updatePage(parseInt(req.params.id), name, projectid);
+    const userid = req.session.userId!;
+
+    const findUser = await checkForUserExistingOnProject(userid, foundPage.projectid);
+
+    if (findUser?.role !== (Role.editor && Role.manager))
+      res.status(401).json({ error: "missing role" });
+
+    const updatedPage = await updatePage(
+      parseInt(req.params.id),
+      name as string,
+      content as object
+    );
     return res.status(200).json(updatedPage);
   } catch (error) {
     next(error);
