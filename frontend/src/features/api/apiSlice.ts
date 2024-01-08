@@ -32,6 +32,11 @@ export interface Project {
   updated_at: string;
 }
 
+export interface ProjectEditRequest {
+  id: number;
+  name: string;
+}
+
 export interface ProjectWithPages extends Project {
   members: User[];
   pages: Page[];
@@ -39,10 +44,23 @@ export interface ProjectWithPages extends Project {
 
 export interface Page {
   id: number;
+  name: string;
   content: JSON;
   projectid: number;
   created_at: string;
   updated_at: string;
+}
+
+export interface PageRequest {
+  name: string;
+  content: JSON;
+  projectid: number;
+}
+
+export interface PageEditRequest {
+  id: number;
+  name?: string;
+  content?: JSON;
 }
 
 export interface ProjectAndUser {
@@ -100,19 +118,19 @@ export const api = createApi({
       query: (projectId) => `/projects/${projectId}`,
       providesTags: (_result, _error, projectId) => [{ type: "Pages", id: projectId }],
     }),
-    addNewProject: builder.mutation<Project, Project>({
-      query: initialProject => ({
+    addNewProject: builder.mutation<Project, string>({
+      query: (projectName) => ({
         url: "/projects",
         method: "POST",
-        body: initialProject
+        body: { name: projectName },
       }),
       invalidatesTags: ["Projects"],
     }),
-    editProject: builder.mutation<Project, Partial<Project>>({
-      query: (project) => ({
-        url: `/projects/${project.id}`,
+    editProject: builder.mutation<Project, ProjectEditRequest>({
+      query: ({ id, name }) => ({
+        url: `/projects/${id}`,
         method: "PUT",
-        body: project
+        body: { name },
       }),
       invalidatesTags: (_result, _error, project) => [{ type: "Projects", id: project.id }],
     }),
@@ -127,19 +145,19 @@ export const api = createApi({
       query: (pageId) => `/pages/${pageId}`,
       providesTags: (_result, _error, pageId) => [{ type: "Pages", id: pageId }],
     }),
-    addNewPage: builder.mutation<Page, Page>({
-      query: (initialPage) => ({
+    addNewPage: builder.mutation<Page, string>({
+      query: (pageName) => ({
         url: "/pages",
         method: "POST",
-        body: initialPage,
+        body: { name: pageName },
       }),
       invalidatesTags: ["Pages"],
     }),
-    editPage: builder.mutation<Page, Partial<Page>>({
-      query: (page) => ({
-        url: "/pages",
+    editPage: builder.mutation<Page, PageEditRequest>({
+      query: ({ id, ...body }) => ({
+        url: `/pages/${id}`,
         method: "PUT",
-        body: page,
+        body: body,
       }),
       invalidatesTags: (_result, _error, page) => [{ type: "Pages", id: page.id }],
     }),
