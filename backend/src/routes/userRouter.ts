@@ -139,7 +139,7 @@ usersRouter.delete("/delete", authenticate, async (req, res, next) => {
     req.session.destroy((err) => {
       res.clearCookie("connect.sid", { path: "/" });
       if (err) next(err);
-      return res.status(200).json(deletedUser).end();
+      return res.status(200).json(deletedUser);
     });
   }  catch (err) {
     next(err);
