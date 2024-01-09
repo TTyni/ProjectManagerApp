@@ -1,91 +1,168 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import { Eye, EyeOff } from "react-feather";
+import {useState} from "react";
+
+// Redux Toolkit
 import { useRegisterUserMutation } from "../api/apiSlice";
 
+// React Router
+import { Link, useNavigate } from "react-router-dom";
+
+// Hook Form and Yup
+import { FieldErrors, useForm } from "react-hook-form";
+import { registerUserSchema } from "./authValidation";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { DevTool } from "@hookform/devtools";
+
+// Components
+import { Eye, EyeOff } from "react-feather";
+
+// Interfaces
+interface RegisterFormValues {
+  email: string;
+  name: string;
+  password: string;
+  passwordConf: string;
+}
+
 export const RegisterForm = () => {
-  const [isVisible, setIsVisible] = useState(false);
-  const [email, setEmail] = useState("");
-  const [name, setName] = useState("");
-  const [password, setPassword] = useState("");
   const [registerUser, { isLoading }] = useRegisterUserMutation();
+  const {
+    control,
+    formState: {isDirty, isSubmitting, isSubmitSuccessful, errors},
+    handleSubmit,
+    register,
+    reset
+  } = useForm<RegisterFormValues>({
+    defaultValues: {
+      email: "",
+      name: "",
+      password: "",
+      passwordConf: ""
+    },
+    resolver: yupResolver(registerUserSchema),
+  });
+  const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPasswordConf, setShowPasswordConf] = useState(false);
+  const [formError, setFormError] = useState<null | string>(null);
 
-  const canSave = [email, name, password].every(Boolean) && !isLoading;
+  const canSave = isDirty && !isLoading;
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    console.log("Email:", email);
-    console.log("Name:", name);
-    console.log("Password:", password);
-
+  const onHandleSubmit = async (formData: RegisterFormValues) => {
     if (canSave) {
       try {
-        const user = await registerUser({ email, name, password }).unwrap();
-        console.log("user:", user);
-        setEmail("");
-        setName("");
-        setPassword("");
+        const user = await registerUser({
+          email: formData.email,
+          name: formData.name,
+          password: formData.password
+        }).unwrap();
+        console.log("Register form submitted");
+        console.log("User:", user);
+        if (isSubmitSuccessful) {
+          reset();
+          setFormError(null);
+          // TO DO: Fix path to user home page
+          navigate("/");
+        }
       } catch (err) {
-        console.error("Failed to save the user: ", err);
+        onError;
+        console.error("Failed to save the user", err);
+        // TO DO: Refactor this
+        if ((
+          err &&
+          typeof err === "object" &&
+          "data" in err &&
+          err.data &&
+          typeof err.data === "object"
+        )) {
+          const errorMessage = Object.values(err.data);
+          setFormError(errorMessage.toString());
+        }
       }
     }
-    // To do
-    // input validation
-    // error handling / message
-    // if registration is successfull, log the user in and redirect user to the "user's homepage"
+  };
+
+  const onError = (errors: FieldErrors<RegisterFormValues>) => {
+    console.log("Form field errors:", errors);
   };
 
   return (
-    <section className="my-8 w-fit mx-auto">
-      <h2 className="font-sans heading-xl text-dark-font uppercase leading-none w-fit mx-auto mb-6">Create <br /> your account</h2>
+    <section className="w-fit mt-14 mx-auto">
+      <h2 className="font-sans heading-xl text-dark-font uppercase leading-none w-fit mx-auto mb-6">
+        Create <br /> your account
+      </h2>
       <form
-        onSubmit={handleSubmit}
-        className="mx-auto relative">
+        onSubmit={handleSubmit(onHandleSubmit, onError)} noValidate>
 
         <label
-          htmlFor="emailInput"
-          className="body-text-sm text-dark-font block mb-1">Email:</label>
-        <input
-          id="emailInput"
-          type="text"
-          value={email}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
-          placeholder="john.doe@mail.com"
-          required
-          className="body-text-md py-1.5 px-4 mb-3 w-full block focus:outline-none focus:ring focus:ring-dark-blue-50" />
+          className="body-text-sm text-dark-font block mb-3">
+            Email:
+          <input
+            type="text"
+            {...register("email")}
+            placeholder="e.g. john.doe@mail.com"
+            className="body-text-md py-1.5 px-4 mt-1 w-full block focus:outline-none focus:ring focus:ring-dark-blue-50" />
+          <p className="text-center body-text-xs text-caution-200 mt-1">{errors.email?.message}</p>
+        </label>
 
         <label
-          htmlFor="nameInput"
-          className="body-text-sm text-dark-font block mb-1">Full name:</label>
-        <input
-          id="nameInput"
-          type="text"
-          value={name}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
-          placeholder="John Doe"
-          required
-          className="body-text-md py-1.5 px-4 mb-3 w-full block focus:outline-none focus:ring focus:ring-dark-blue-50" />
+          className="body-text-sm text-dark-font block mb-3">
+            Full name:
+          <input
+            type="text"
+            {...register("name")}
+            placeholder="John Doe"
+            className="body-text-md py-1.5 px-4 mt-1 w-full block focus:outline-none focus:ring focus:ring-dark-blue-50"/>
+          <p className="text-center body-text-xs text-caution-200 mt-1">{errors.name?.message}</p>
+        </label>
 
         <label
-          htmlFor="passwordInput"
-          className="body-text-sm text-dark-font block mb-1">Password:</label>
-        <input
-          id="passwordInput"
-          type={isVisible ? "text" : "password"}
-          value={password}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
-          required
-          className="body-text-md py-1.5 px-4 mb-8 w-full inline-block focus:outline-none focus:ring focus:ring-dark-blue-50" />
-        <button
-          onClick={() => setIsVisible(!isVisible)}
-          className="bg-grayscale-0 px-2 py-2.5 rounded-l-none absolute right-0 align-middle focus:outline-none focus:ring focus:ring-dark-blue-50">
-          {isVisible ? <Eye size={18} /> : <EyeOff size={18} />}
-        </button>
+          className="body-text-sm text-dark-font mb-3 block">
+            Password:
+          <section className="mx-auto mt-1 relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              {...register("password")}
+              className="body-text-md py-1.5 px-4 w-full inline-block focus:outline-none focus:ring focus:ring-dark-blue-50"/>
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="bg-grayscale-0 px-2 py-2.5 rounded-l-none absolute right-0 align-middle focus:outline-none focus:ring focus:ring-dark-blue-50">
+              {showPassword ? <Eye size={18}/> : <EyeOff size={18}/>}
+            </button>
+          </section>
+          <p className="text-center body-text-xs text-caution-200 mt-1">{errors.password?.message}</p>
+        </label>
 
-        <button type="submit" className="w-full btn-text-md focus:outline-none focus:ring focus:ring-dark-blue-50">Register</button>
+        <label
+          className="body-text-sm text-dark-font mb-8 block">
+            Confirm Password:
+          <section className="mx-auto mt-1 relative">
+            <input
+              type={showPasswordConf ? "text" : "password"}
+              {...register("passwordConf")}
+              className="body-text-md py-1.5 px-4 w-full inline-block focus:outline-none focus:ring focus:ring-dark-blue-50"/>
+            <button
+              type="button"
+              onClick={() => setShowPasswordConf(!showPasswordConf)}
+              className="bg-grayscale-0 px-2 py-2.5 rounded-l-none absolute right-0 align-middle focus:outline-none focus:ring focus:ring-dark-blue-50">
+              {showPasswordConf ? <Eye size={18}/> : <EyeOff size={18}/>}
+            </button>
+          </section>
+          <p className="text-center body-text-xs text-caution-200 mt-1">{errors.password?.message}</p>
+          <p className="text-center body-text-xs text-caution-200 mt-1">{formError}</p>
+        </label>
+
+        <button type="submit" disabled={isSubmitting} className="w-full btn-text-md focus:outline-none focus:ring focus:ring-dark-blue-50">Register</button>
       </form>
+
+      {/* For development only */}
+      <DevTool control={control}/>
+
       <p className="body-text-sm text-dark-font mt-3 mb-1 text-center">Already have an account?</p>
-      <Link to="/login" className="focus:outline-dark-blue-50"><p className="body-text-md text-dark-font underline text-center">Login</p></Link>
+      <Link to="/login" className="focus:outline-dark-blue-50">
+        <p className="body-text-md text-dark-font underline text-center">Login</p>
+      </Link>
+
     </section>
   );
 };
