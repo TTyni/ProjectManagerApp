@@ -27,11 +27,13 @@ const getRandomColor = () => getRandomElement(colors);
 const room = 10;
 
 const ydoc = new Y.Doc();
+let editable = false;
 const websocketProvider = new HocuspocusProvider({
   url: "ws://localhost:3001/collaboration",
   name: "10",
   document: ydoc,
   token: "token",
+  onAuthenticated: () => { editable = true; }
 });
 
 const getInitialUser = (name: string | undefined) => {
@@ -67,6 +69,7 @@ const Editor = () => {
       attributes: {
         class: "prose dark:prose-invert prose-sm sm:prose-base lg:prose-lg xl:prose-2xl mx-5 p-2 focus:outline-none border border-grayscale-400 rounded-b-lg min-h-[10rem]",
       },
+      editable: () => editable,
     },
     autofocus: false,
   });
