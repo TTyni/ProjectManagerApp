@@ -68,6 +68,7 @@ const Editor = () => {
         class: "prose dark:prose-invert prose-sm sm:prose-base lg:prose-lg xl:prose-2xl mx-5 p-2 focus:outline-none border border-grayscale-400 rounded-b-lg min-h-[10rem]",
       },
     },
+    autofocus: false,
   });
 
   useEffect(() => {
@@ -96,7 +97,7 @@ const Editor = () => {
   return (
     <div>
       {editor && <MenuBar editor={editor} />}
-      <EditorContent className="editor__content" editor={editor} />
+      <EditorContent editor={editor} />
       <div className="flex justify-between m-5">
         <div className="flex items-center">
           <p className={`${status === "connected" ? "text-green-200" : "text-red-200"} text-xl mr-1`}>●</p>
@@ -105,7 +106,7 @@ const Editor = () => {
             ? `${editor?.storage.collaborationCursor.users.length} user${editor?.storage.collaborationCursor.users.length === 1 ? "" : "s"} online in ${room}`
             : "offline"}
         </div>
-        <div className="content-end">
+        <div>
           <button onClick={setName} className="btn-text-xs">{currentUser.name}</button>
         </div>
       </div>
