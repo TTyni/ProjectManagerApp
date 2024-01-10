@@ -11,6 +11,7 @@ import { ProfileModal } from "../pages/components/profilemodal.tsx";
 import { ProjectView } from "../pages/views/projectView.tsx";
 import { PrivatePage } from "../pages/privatePage.tsx";
 import { HomeView } from "../pages/views/homeView.tsx";
+import { Editor } from "../features/editor/Editor.tsx";
 
 const loggedIn = true;
 
@@ -20,6 +21,7 @@ export const router = createBrowserRouter(
       <Route path="/" element={loggedIn ? <PrivatePage /> : <PublicPage />} >
         <Route index element={loggedIn ? <ProjectView /> : <HomeView />} />
         <Route path="login" element={<LoginView />} />
+        <Route path="editor" element={<Editor />} />
         <Route path="profile" element={<ProfileModal/>} />
         <Route path="register" element={<RegisterView />} />
       </Route>
