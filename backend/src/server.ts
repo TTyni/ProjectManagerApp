@@ -1,8 +1,8 @@
-import express from "express";
+import express, { type Request } from "express";
 import session from "express-session";
 import cors from "cors";
 import expressWebsockets from "express-ws";
-import { Server} from "@hocuspocus/server";
+import { Server, type onAuthenticatePayload } from "@hocuspocus/server";
 import { Logger } from "@hocuspocus/extension-logger";
 import usersRouter from "./routes/userRouter.js";
 import projectsRouter from "./routes/projectRouter.js";
@@ -14,6 +14,10 @@ import authenticate from "./middlewares/authenticate.js";
 const sessionSecret = process.env.BACKEND_SESSION_SECRET!;
 const PORT = process.env.BACKEND_PORT!;
 
+interface onAuthenticatePayloadWithRequest extends onAuthenticatePayload {
+  request: Request;
+}
+
 const hocuspocusServer = Server.configure({
   extensions: [
     new Logger(),
@@ -23,14 +27,16 @@ const hocuspocusServer = Server.configure({
   // eslint-disable-next-line @typescript-eslint/require-await
   async onAuthenticate(data) {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { request, response } = data;
-    console.log("authi");
+    const { request } = data as onAuthenticatePayloadWithRequest;
     // console.log(data.requestHeaders);
     // console.log(data.request);
     // data.requestParameters
     // const token =
-    const  sessionUserId  = request.session.userId;
-    console.log(sessionUserId);
+    const sessionUserId = request.session.userId;
+    if (!sessionUserId) {
+      throw new Error("Not authorized!");
+    }
+    console.log("onAuthenticate", sessionUserId);
 
     // Example test if a user is authenticated with a token passed from the client
     // if (!sessionUserId) {
@@ -40,7 +46,7 @@ const hocuspocusServer = Server.configure({
     // You can set contextual data to use it in other hooks
     return {
       user: {
-        id: sessionUserId,
+        id: sessionUserId ?? 0,
         name: "John",
       },
     };
@@ -82,14 +88,7 @@ app.ws("/collaboration", (websocket, request) => {
 
   // }
 
-  const context = {
-    user: {
-      id: 1234 ,
-      name: "Jane",
-    },
-  };
-
-  hocuspocusServer.handleConnection(websocket, request, context);
+  hocuspocusServer.handleConnection(websocket, request);
 
 });
 
