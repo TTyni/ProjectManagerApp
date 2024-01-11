@@ -4,6 +4,8 @@ import cors from "cors";
 import expressWebsockets from "express-ws";
 import { Server, type onAuthenticatePayload } from "@hocuspocus/server";
 import { Logger } from "@hocuspocus/extension-logger";
+import { Database } from "@hocuspocus/extension-database";
+import * as Y from "yjs";
 import usersRouter from "./routes/userRouter.js";
 import projectsRouter from "./routes/projectRouter.js";
 import requestLog from "./middlewares/requestLog.js";
@@ -18,9 +20,23 @@ interface onAuthenticatePayloadWithRequest extends onAuthenticatePayload {
   request: Request;
 }
 
+const ydoc = new Y.Doc;
+
 const hocuspocusServer = Server.configure({
   extensions: [
     new Logger(),
+    new Database({
+      fetch: async ({ documentName }) => {
+        return new Promise((resolve, reject) => {
+          resolve(Y.encodeStateAsUpdate(ydoc));
+        });
+      },
+      store: async ({ documentName, state }) => {
+        return new Promise((resolve, reject) => {
+          resolve(Y.applyUpdate(ydoc,state));
+        });
+      },
+    }),
   ],
   port: Number(PORT),
   name: "example-document",

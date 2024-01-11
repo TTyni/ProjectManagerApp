@@ -33,6 +33,7 @@
     "vitest": "^1.0.4"
   },
   "dependencies": {
+    "@hocuspocus/extension-database": "^2.9.0",
     "@hocuspocus/extension-logger": "^2.8.1",
     "@hocuspocus/server": "^2.8.1",
     "@prisma/client": "^5.7.1",
