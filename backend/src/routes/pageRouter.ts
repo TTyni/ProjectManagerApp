@@ -36,17 +36,14 @@ pagesRouter.post("/", async (req, res, next) => {
     const {
       name,
       projectid,
-      content ,
     } = req.body;
     const userid = req.session.userId!;
 
     if (
       !name ||
       !projectid ||
-      !content ||
       typeof name !== "string" ||
-      typeof projectid !== "number" ||
-      typeof content !== "object"
+      typeof projectid !== "number"
     ) {
       return res.status(400).json({ error: "missing parameters" });
     }
@@ -56,7 +53,7 @@ pagesRouter.post("/", async (req, res, next) => {
     if (findUser?.role !== (Role.editor && Role.manager))
       res.status(401).json({ error: "missing role" });
 
-    const newPage = await createPage(name, projectid, content as object);
+    const newPage = await createPage(name, projectid);
     return res.status(200).json(newPage);
   } catch (error) {
     next(error);
@@ -87,8 +84,11 @@ pagesRouter.put("/:id(\\d+)", async (req, res, next) => {
   try {
     const {
       name,
-      content,
     } = req.body;
+
+    if (!name || typeof name !== "string") {
+      return res.status(400).json({ error: "missing parameters" });
+    }
 
     const foundPage = await getpageById(parseInt(req.params.id));
     if (!foundPage)
@@ -101,11 +101,7 @@ pagesRouter.put("/:id(\\d+)", async (req, res, next) => {
     if (findUser?.role !== (Role.editor && Role.manager))
       res.status(401).json({ error: "missing role" });
 
-    const updatedPage = await updatePage(
-      parseInt(req.params.id),
-      name as string,
-      content as object
-    );
+    const updatedPage = await updatePage(parseInt(req.params.id), name, foundPage.content);
     return res.status(200).json(updatedPage);
   } catch (error) {
     next(error);
