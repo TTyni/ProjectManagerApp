@@ -11,7 +11,7 @@ import requestLog from "./middlewares/requestLog.js";
 import unknownEndpoint from "./middlewares/unknownEndpoint.js";
 import pagesRouter from "./routes/pageRouter.js";
 import authenticate from "./middlewares/authenticate.js";
-import { getpageById, updatePage } from "./services/pageService.js";
+import { canEditPage, getpageById, updatePageContent } from "./services/pageService.js";
 
 const sessionSecret = process.env.BACKEND_SESSION_SECRET!;
 const PORT = process.env.BACKEND_PORT!;
@@ -25,39 +25,31 @@ const hocuspocusServer = Server.configure({
     new Logger(),
     new Database({
       fetch: async ({ documentName }) => {
-        console.log(documentName);
-        // eslint-disable-next-line no-async-promise-executor
-        return new Promise(async (resolve, reject) => {
-          try {
-            const page = await getpageById(37);
-            resolve(page?.content ?? null);
-            // resolve(Y.encodeStateAsUpdate(ydoc));
-          } catch {
-            reject();
-          }
-        });
+        const page = await getpageById(Number(documentName));
+        return page?.content ?? null;
       },
       store: async ({ documentName, state }) => {
-        console.log(documentName);
-        await updatePage(37, "moi", state);
+        try {
+          await updatePageContent(Number(documentName), state);
+        } catch (err) {
+          console.log("Error updating page:", documentName);
+        }
       },
     }),
   ],
   port: Number(PORT),
-  name: "example-document",
-  // eslint-disable-next-line @typescript-eslint/require-await
   async onAuthenticate(data) {
     const { request } = data as onAuthenticatePayloadWithRequest;
     const sessionUserId = request.session.userId;
-    if (!sessionUserId) {
+    if (!sessionUserId || !await canEditPage(sessionUserId, Number(data.documentName))) {
+      console.log("Not authorized! Userid =", sessionUserId, ", page =", data.documentName);
       // throw new Error("Not authorized!");
     }
-    console.log("onAuthenticate", sessionUserId);
 
     // You can set contextual data to use it in other hooks
     return {
       user: {
-        id: sessionUserId ?? 0,
+        id: sessionUserId,
         name: "John",
       },
     };
@@ -86,21 +78,7 @@ app.use("/projects", authenticate, projectsRouter);
 app.use("/pages", authenticate, pagesRouter);
 
 app.ws("/collaboration", (websocket, request) => {
-  console.log("hokkuspokkus");
-  console.log(request.session.userId);
-  // websocket.send("jou");
-  // if(!request.session.userId){
-  //   console.log("ei ole");
-  //   // websocket.send("hhohoo");
-  //   websocket.send("HTTP/1.1 401 Unauthorized\r\n\r\n");
-  //   // websocket.terminate();
-
-  //   return;
-
-  // }
-
   hocuspocusServer.handleConnection(websocket, request);
-
 });
 
 app.use(unknownEndpoint);

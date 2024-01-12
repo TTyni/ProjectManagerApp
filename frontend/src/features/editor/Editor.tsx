@@ -1,6 +1,6 @@
 import "./editor.css";
 
-import { HocuspocusProvider } from "@hocuspocus/provider";
+import { HocuspocusProvider, HocuspocusProviderWebsocket } from "@hocuspocus/provider";
 import CharacterCount from "@tiptap/extension-character-count";
 import Collaboration from "@tiptap/extension-collaboration";
 import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
@@ -24,16 +24,20 @@ const getRandomElement = (list: string[]) => list[Math.floor(Math.random() * lis
 
 const getRandomColor = () => getRandomElement(colors);
 
-const room = 10;
+const pageId = 32;
 
 const ydoc = new Y.Doc();
-let editable = false;
-const websocketProvider = new HocuspocusProvider({
+let editable = true;
+const socket = new HocuspocusProviderWebsocket({
   url: "ws://localhost:3001/collaboration",
-  name: "10",
+});
+const websocketProvider = new HocuspocusProvider({
+  websocketProvider: socket,
+  name: pageId.toString(),
   document: ydoc,
   token: "token",
-  onAuthenticated: () => { editable = true; }
+  onAuthenticated: () => { editable = true; },
+  onAuthenticationFailed: () => { editable = false; },
 });
 
 const getInitialUser = (name: string | undefined) => {
@@ -106,7 +110,7 @@ const Editor = () => {
           <p className={`${status === "connected" ? "text-green-200" : "text-red-200"} text-xl mr-1`}>●</p>
           {status === "connected"
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            ? `${editor?.storage.collaborationCursor.users.length} user${editor?.storage.collaborationCursor.users.length === 1 ? "" : "s"} online in ${room}`
+            ? `${editor?.storage.collaborationCursor.users.length} user${editor?.storage.collaborationCursor.users.length === 1 ? "" : "s"} online editing page ${pageId}`
             : "offline"}
         </div>
         <div>
