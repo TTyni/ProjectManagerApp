@@ -43,7 +43,7 @@ const hocuspocusServer = Server.configure({
     const sessionUserId = request.session.userId;
     if (!sessionUserId || !await canEditPage(sessionUserId, Number(data.documentName))) {
       console.log("Not authorized! Userid =", sessionUserId, ", page =", data.documentName);
-      // throw new Error("Not authorized!");
+      throw new Error("Not authorized!");
     }
 
     // You can set contextual data to use it in other hooks
