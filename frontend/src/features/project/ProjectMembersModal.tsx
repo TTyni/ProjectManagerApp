@@ -25,7 +25,7 @@ interface InviteProjectMemberValues {
 export const ProjectMembersModal = ({ projectId }: ProjectMembersModalProps) => {
   const navigate = useNavigate();
 
-  const [selectValue, setSelectValue] = useState<string>("");
+  const [selectValue, setSelectValue] = useState<string>("viewer");
   const [userRole, setUserRole] = useState<string>("viewer");
 
   const user = useAppSelector((state) => state.auth.user);
@@ -48,7 +48,7 @@ export const ProjectMembersModal = ({ projectId }: ProjectMembersModalProps) => 
   } = useForm<InviteProjectMemberValues>({
     defaultValues: {
       email: "",
-      role: "viewer"
+      role: selectValue
     },
     resolver: yupResolver(inviteUserSchema),
   });
@@ -66,6 +66,7 @@ export const ProjectMembersModal = ({ projectId }: ProjectMembersModalProps) => 
     if (canSubmit) {
       try {
         await addProjectMember({email: formData.email, projectId: projectId, role: formData.role}).unwrap();
+        setSelectValue("viewer");
         reset();
         setFormError(null);
       } catch (err) {
