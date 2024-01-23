@@ -48,7 +48,7 @@ export const ProjectMembersModal = ({ projectId }: ProjectMembersModalProps) => 
   } = useForm<InviteProjectMemberValues>({
     defaultValues: {
       email: "",
-      role: selectValue
+      role: "viewer"
     },
     resolver: yupResolver(inviteUserSchema),
   });
