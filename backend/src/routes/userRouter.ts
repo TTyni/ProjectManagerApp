@@ -96,7 +96,7 @@ usersRouter.post("/getuserbyemail", authenticate, async (req, res, next) => {
     const user = await getUserByEmail(email);
 
     if (!user) {
-      return res.status(404).json({ error: "Couldnt find user" });
+      return res.status(404).json({ error: "Couldn't find user" });
     }
 
     return res.status(200).json({ id: user.id });
@@ -123,7 +123,7 @@ usersRouter.put("/update", authenticate, validate(updateUserSchema), async (req:
 
     const user = await getUserById(id);
     if (!user) {
-      return res.status(404).json({ error: "Couldnt find user" });
+      return res.status(404).json({ error: "Couldn't find user" });
     }
 
     const updatedUserData: updateUserSchemaType = {};
