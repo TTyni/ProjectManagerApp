@@ -136,6 +136,15 @@ describe("Project endpoint tests", () => {
     expect(res.body).toBeTruthy();
   });
 
+  it("Update project name", async () => {
+    const res = await req
+      .put(`/projects/${projectId}`)
+      .send({ name: "new projectname" })
+      .expect(200)
+      .expect("Content-Type", /json/);
+    expect(res.body.name).toEqual("new projectname");
+  });
+
   it("Logins dummy user", async () => {
     await req
       .post("/users/login")
