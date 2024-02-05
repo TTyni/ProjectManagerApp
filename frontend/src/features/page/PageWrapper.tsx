@@ -56,7 +56,7 @@ export const PageWrapper = ({pageId}: {pageId: string}) => {
       kanbanMap.set("labels", new Y.Array<Labels>);
       yarray.push([{type, uuid}]);
     } else if (type === "calendar") {
-      // Updat this when calendar is done
+      // Update this when calendar is done
       console.log("Calendar");
     }
   };

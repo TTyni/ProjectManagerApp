@@ -18,7 +18,7 @@ const components: Component[] = [
   {
     name: "Kanban board",
     type: "kanban",
-    description: "Visualize and manage project wih an interactive Kanban board.",
+    description: "Visualize and manage project with an interactive Kanban board.",
     btnTxt: "Add kanban board",
     icon: <Columns size={20}/>
   },

@@ -65,7 +65,7 @@ export interface EditPageRequest {
   name: string;
 }
 
-export interface AddMemberReqeust {
+export interface AddMemberRequest {
   projectId: number;
   email: string;
   role: string;
@@ -202,11 +202,11 @@ export const api = createApi({
       }),
       invalidatesTags: (result, _error, pageId) => [{ type: "Pages", id: pageId }, { type: "Projects", id: result?.projectid }],
     }),
-    addNewProjectUser: builder.mutation<ProjectUser, AddMemberReqeust>({
-      query: (addMemberReqeust) => ({
-        url: `/projects/${addMemberReqeust.projectId}/users/`,
+    addNewProjectUser: builder.mutation<ProjectUser, AddMemberRequest>({
+      query: (addMemberRequest) => ({
+        url: `/projects/${addMemberRequest.projectId}/users/`,
         method: "POST",
-        body: { role: addMemberReqeust.role, email: addMemberReqeust.email },
+        body: { role: addMemberRequest.role, email: addMemberRequest.email },
       }),
       invalidatesTags: (_result, _error, projectAndUser) => [{ type: "Projects", id: projectAndUser.projectId }],
     }),
