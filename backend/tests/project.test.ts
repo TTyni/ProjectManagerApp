@@ -37,7 +37,7 @@ afterAll(async () => {
 
 describe("Project endpoint tests", () => {
 
-  it("Try to view project that doesnt exist", async () => {
+  it("Try to view project that doesn't exist", async () => {
     const res = await manager
       .get("/projects/123456789")
       .expect(404)
@@ -195,7 +195,7 @@ describe("Project endpoint tests", () => {
     expect(res.body.error).toEqual("You are not on the project");
   });
 
-  it("Try to add user to project which doesnt exist", async () => {
+  it("Try to add user to project which doesn't exist", async () => {
     const res = await manager
       .post(`/projects/${12345}/users/`)
       .send({ role: "editor", email: "dummy@gmail.com" })
@@ -205,7 +205,7 @@ describe("Project endpoint tests", () => {
     expect(res.body.error).toEqual("You are not on this project");
   });
 
-  it("Try to add user which doesnt exist to project", async () => {
+  it("Try to add user which doesn't exist to project", async () => {
     const res = await manager
       .post(`/projects/${projectId}/users/`)
       .send({ role: "viewer", email: "dummyNOTINPROJECT@gmail.com" })
@@ -232,7 +232,7 @@ describe("Project endpoint tests", () => {
     expect(res.body.name).toEqual("new projectname");
   });
 
-  it("Update project name without beigin on project", async () => {
+  it("Update project name without being on project", async () => {
     const res = await dummyUser
       .put(`/projects/${projectId}`)
       .send({ name: "new projectname" })
