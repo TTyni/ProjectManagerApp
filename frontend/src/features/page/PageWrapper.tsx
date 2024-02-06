@@ -106,7 +106,7 @@ export const PageWrapper = ({pageId}: {pageId: string}) => {
             <AddComponentModal createComponent={addComponent} />
           </Modal>
         </section>
-      
+
         {components.map((component) =>
           <Fragment key={component.uuid}>
             {getComponent(component)}
