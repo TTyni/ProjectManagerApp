@@ -36,7 +36,7 @@ export interface Task {
   content: string;
   done: boolean;
   labels?: Labels[];
-  deadline?: number | object | undefined;
+  deadline?: number | undefined;
   members: Member[];
 }
 
@@ -339,7 +339,7 @@ export const Kanban = ({
 
   const setTaskDeadline = (
     id: string | number,
-    deadline: number | object | undefined
+    deadline: number | undefined
   ) => {
     const ytasks = ykanban.get("tasks") as Y.Array<Task>;
     let changed = false;
