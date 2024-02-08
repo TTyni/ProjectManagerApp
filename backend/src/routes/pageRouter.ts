@@ -1,5 +1,7 @@
 import { Router } from "express";
 import { Role } from "@prisma/client";
+import * as yup from "yup";
+import validate from "../middlewares/validate.js";
 import {
   getpageById,
   createPage,
@@ -7,6 +9,7 @@ import {
   deletePage,
 } from "../services/pageService.js";
 import { checkForUserExistingOnProject } from "../services/projectService.js";
+import { type RequestBody } from "../types/types.js";
 
 const pagesRouter = Router();
 
@@ -31,7 +34,22 @@ pagesRouter.get("/:id(\\d+)", async (req, res, next) => {
   }
 });
 
-pagesRouter.post("/", async (req, res, next) => {
+const createPageSchema = yup.object({
+  name: yup
+    .string()
+    .trim()
+    .required("Page name is required")
+    .min(2, "Must be at least 2 characters long")
+    .max(50, "Must be less than 50 characters long"),
+  projectid: yup
+    .number()
+    .positive()
+    .integer()
+    .required("Project id is required"),
+});
+type CreatePageSchemaType = yup.InferType<typeof createPageSchema>;
+
+pagesRouter.post("/", validate(createPageSchema), async (req: RequestBody<CreatePageSchemaType>, res, next) => {
   try {
     const { name, projectid } = req.body;
     const userid = req.session.userId!;
@@ -88,7 +106,18 @@ pagesRouter.delete("/:id(\\d+)", async (req, res, next) => {
   }
 });
 
-pagesRouter.put("/:id(\\d+)", async (req, res, next) => {
+export const pageNameSchema = yup.object().shape({
+  name: yup
+    .string()
+    .trim()
+    .required("Page name is required")
+    .min(2, "Must be at least 2 characters long")
+    .max(50, "Must be less than 50 characters long")
+});
+
+export type PageNameSchemaType = yup.InferType<typeof pageNameSchema>;
+
+pagesRouter.put("/:id(\\d+)", validate(pageNameSchema), async (req: RequestBody<PageNameSchemaType>, res, next) => {
   try {
     const { name } = req.body;
     const pageId = Number(req.params.id);
