@@ -32,8 +32,7 @@ interface Props {
   updateTask: (id: number | string, content: string) => void;
   updateTaskTitle: (id: number | string, title: string) => void;
   addTaskMember: (id: number | string, newMember: Member) => void;
-  removeTaskMember: (id: number | string, newMember: Member) => void;
-  markTaskDone: (id: number | string) => void;
+  removeTaskMember: (id: number | string, newMember: Member) => void
   labels: Labels[];
   labelColors: Labels[];
   setIsModalsOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -52,7 +51,6 @@ export const KanbanTask = ({
   updateTaskTitle,
   addTaskMember,
   removeTaskMember,
-  // markTaskDone,
   labels,
   labelColors,
   setIsModalsOpen,
@@ -139,24 +137,16 @@ export const KanbanTask = ({
           <div className="mb-6">
             <h4 className="heading-xs mb-1">{task.title}</h4>
             {/* Line clamp needs fixing, this removes row changes when displaying content */}
-            <pre className="min-h-max line-clamp-3 body-text-xs">
+            <p className="min-h-max line-clamp-3 body-text-xs whitespace-pre-wrap">
               {task.content}
-            </pre>
+            </p>
           </div>
 
           <section className="w-full grid grid-flow-col grid-cols-2 gap-2">
             <div className="grid col-span-2">
               {/* Task Deadline */}
               <section className="w-full mb-1.5">
-                <div
-                  className={`rounded w-fit px-2 py-1 text-center ${
-                    task.done ? "bg-success-100" : "bg-caution-100"
-                  }`}
-                >
-                  <p className="label-text">
-                    {task.done ? "Done" : "Not Done"}
-                  </p>
-                </div>
+               
                 {task.deadline && (
                   <div
                     className={`rounded w-fit px-2 py-1 text-center ${
@@ -165,10 +155,10 @@ export const KanbanTask = ({
                         : "bg-caution-100"
                     }`}
                   >
-                    <p className="label-text inline-flex">
-                      <Clock size={16}></Clock>
-                      {dateDifference(task.deadline)} Days left
-                    </p>
+                    <div className="label-text inline-flex gap-1">
+                      <Clock size={16} /> 
+                      {dateDifference(task.deadline)} days left
+                    </div>
                   </div>
                 )}
               </section>
@@ -249,15 +239,6 @@ export const KanbanTask = ({
                     {displayTaskMembers}
                   </section>
                   {/* Task Deadline */}
-                  <div
-                    className={`rounded min-w-fit h-fit px-2 py-1 text-center ${
-                      task.done ? "bg-success-100" : "bg-caution-100"
-                    }`}
-                  >
-                    <p className="label-text">
-                      {task.done ? "Done" : "Not Done"}
-                    </p>
-                  </div>
                   {task.deadline && (
                     <div
                       className={`rounded w-fit px-2 py-1 text-center ${
@@ -266,10 +247,10 @@ export const KanbanTask = ({
                           : "bg-caution-100"
                       }`}
                     >
-                      <p className="label-text inline-flex">
-                        <Clock size={16}></Clock>
-                        {dateDifference(task.deadline)} Days left
-                      </p>
+                      <div className="label-text inline-flex gap-1">
+                        <Clock size={16} /> 
+                        {dateDifference(task.deadline)} days left
+                      </div>
                     </div>
                   )}
                 </div>
@@ -371,14 +352,3 @@ export const KanbanTask = ({
     </>
   );
 };
-
-{
-  /* {!task.done && (
-              <div className="border relative left-5">
-                <TaskModal>
-                  <div onClick={() => markTaskDone(task.Id)}>Mark as Done</div>
-                  <div></div>
-                </TaskModal>
-              </div>
-            )} */
-}
