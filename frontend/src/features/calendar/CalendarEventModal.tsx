@@ -122,16 +122,16 @@ const CalendarEventModal = ({ events, currentMonth, day, yevents }: Props) => {
           )}
         </ul>
       </section>
+      {isModalOpen &&
       <div
         onClick={closeModal}
-        className={`fixed flex justify-center inset-0 z-30 items-center transition-colors
-         ${isModalOpen ? "visible bg-dark-blue-100/40" : "invisible"}`}
+        className="fixed flex justify-center inset-0 z-30 items-center transition-colors bg-dark-blue-100/40"
       >
         <dialog
           onClick={(e) => e.stopPropagation()}
           className={`fixed p-2 pb-4 flex flex-col inset-0 z-30 max-h-screen sm:justify-start items-left overflow-x-hidden overflow-y-auto
-           outline-none sm:rounded focus:outline-none shadow transition-all
-          ${screenDimensions.height < 500 ? "min-h-screen w-full" : "w-full h-full sm:h-fit sm:w-fit sm:max-w-2xl"}`}
+            outline-none sm:rounded focus:outline-none shadow transition-all
+            ${screenDimensions.height < 500 ? "min-h-screen w-full" : "w-full h-full sm:h-fit sm:w-fit sm:max-w-2xl"}`}
         >
           <header className="w-full flex flex-col mb-2 place-items-end">
             <button
@@ -149,8 +149,8 @@ const CalendarEventModal = ({ events, currentMonth, day, yevents }: Props) => {
               {events.map(
                 (event) =>
                   isEqual(getMonth(event.day), getMonth(day)) &&
-                  isEqual(getDate(event.day), getDate(day)) &&
-                  isEqual(getYear(event.day), getYear(day)) && (
+                    isEqual(getDate(event.day), getDate(day)) &&
+                    isEqual(getYear(event.day), getYear(day)) && (
                     <div
                       className="flex flex-row items-center justify-between cursor-pointer border-b-2 border-grayscale-200"
                       key={event.id}
@@ -217,7 +217,6 @@ const CalendarEventModal = ({ events, currentMonth, day, yevents }: Props) => {
                     onChange={(e) => setTime(day, e.target.value)}
                     className="px-3 body-text-md"
                   />
-
                   <input
                     required
                     onChange={(e) => setEventTitle(e.target.value)}
@@ -233,6 +232,7 @@ const CalendarEventModal = ({ events, currentMonth, day, yevents }: Props) => {
           </main>
         </dialog>
       </div>
+      }
     </>
   );
 };
