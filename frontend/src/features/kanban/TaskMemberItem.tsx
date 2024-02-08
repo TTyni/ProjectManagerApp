@@ -1,5 +1,5 @@
 // React
-import { useEffect, useState, Dispatch, SetStateAction } from "react";
+import { useEffect, useState } from "react";
 
 // Components
 import { UserIcon } from "../user/UserIcon";
@@ -7,46 +7,43 @@ import { Check } from "react-feather";
 
 // Types and Interfaces
 import { type Member } from "../api/apiSlice";
+import { type Task } from "./Kanban";
 
 interface IProps {
-    member: Member;
-    taskMembers: Member[];
-    setTaskMembers: Dispatch<SetStateAction<Member[]>>;
-  }
+  member: Member;
+  addTaskMember: (id: number | string, newMember: Member) => void;
+  removeTaskMember: (id: number | string, newMember: Member) => void;
+  task: Task;
+}
 
-export const TaskMember = ({ member, taskMembers, setTaskMembers }: IProps) => {
+export const TaskMember = ({
+  member,
+  addTaskMember,
+  task,
+  removeTaskMember,
+}: IProps) => {
   const [isChecked, setIsChecked] = useState(false);
 
-  const addTaskMember = () => {
-    setTaskMembers([...taskMembers, member]);
+  const addMemberToTask = () => {
+    addTaskMember(task.Id, member);
   };
 
-  const removeTaskMember = () => {
-    const updatedTaskMembers = taskMembers.filter(taskMember => taskMember.id !== member.id);
-    setTaskMembers(updatedTaskMembers);
+  const removeMemberFromTask = () => {
+    removeTaskMember(task.Id, member);
   };
 
   const handleOnClick = () => {
-    isChecked ? removeTaskMember() : addTaskMember();
+    isChecked ? removeMemberFromTask() : addMemberToTask();
     setIsChecked((prev) => !prev);
   };
 
   useEffect(() => {
-    const getCurrentTaskMembers = (): boolean => {
-      let result = false;
-      taskMembers.find(taskMember => {
-        if (taskMember.id === member.id) {
-          setIsChecked(true);
-          result = true;
-        } else {
-          result = false;
-        }
-      });
-      console.log("Get Current Task Members");
-      return result;
-    };
-    getCurrentTaskMembers();
-  }, [taskMembers, member.id]);
+    task.members.forEach((taskMember) => {
+      if (taskMember.id === member.id) {
+        setIsChecked(true);
+      }
+    });
+  }, [task.members, member.id]);
 
   return (
     <div
@@ -56,11 +53,9 @@ export const TaskMember = ({ member, taskMembers, setTaskMembers }: IProps) => {
     >
       <section className="inline-flex items-center gap-2.5">
         <UserIcon id={member.id} name={member.name} />
-        <p className="body-text-sm">
-          {member.name}
-        </p>
+        <p className="body-text-sm">{member.name}</p>
       </section>
-      <p>{isChecked ? <Check className="text-grayscale-400"/> : null}</p>
+      <p>{isChecked ? <Check className="text-grayscale-400" /> : null}</p>
     </div>
   );
 };

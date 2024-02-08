@@ -31,7 +31,8 @@ interface Props {
   deleteTask: (id: number | string) => void;
   updateTask: (id: number | string, content: string) => void;
   updateTaskTitle: (id: number | string, title: string) => void;
-  updateTaskMembers: (id: number | string, members: Member[]) => void;
+  addTaskMember: (id: number | string, newMember: Member) => void;
+  removeTaskMember: (id: number | string, newMember: Member) => void;
   markTaskDone: (id: number | string) => void;
   labels: Labels[];
   labelColors: Labels[];
@@ -49,7 +50,8 @@ export const KanbanTask = ({
   deleteTask,
   updateTask,
   updateTaskTitle,
-  updateTaskMembers,
+  addTaskMember,
+  removeTaskMember,
   // markTaskDone,
   labels,
   labelColors,
@@ -85,15 +87,7 @@ export const KanbanTask = ({
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditTitleSelected, setIsEditTitleSelected] = useState(false);
-  const [editTitle, setEditTitle] = useState(task.title);
-  const [editContent, setEditContent] = useState(task.content);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
-  // This is used only for development, since there are already tasks with no members array
-  const [taskMembers, setTaskMembers] = useState<Member[]>(
-    task.members ? task.members : []
-  );
-  // For production
-  // const [taskMembers, setTaskMembers] = useState<Member[]>(task.members);
 
   const openModal = () => {
     setIsModalOpen(true);
@@ -104,14 +98,10 @@ export const KanbanTask = ({
   };
 
   const displayTaskLabels = task.labels?.map((label) => (
-    <Label
-      key={label.id}
-      labelColor={label.color}
-      labelText={label.name}
-    />
+    <Label key={label.id} labelColor={label.color} labelText={label.name} />
   ));
 
-  const displayTaskMembers = taskMembers.map((member: Member) =>
+  const displayTaskMembers = task.members.map((member: Member) =>
     member ? (
       <UserIcon
         key={member.id}
@@ -121,13 +111,6 @@ export const KanbanTask = ({
       />
     ) : null
   );
-
-  const handleSave = () => {
-    updateTask(task.Id, editContent);
-    updateTaskTitle(task.Id, editTitle);
-    updateTaskMembers(task.Id, taskMembers);
-    closeModal();
-  };
 
   const dateDifference = (endDate: number | object | undefined) => {
     const dateNow = new Date().getTime();
@@ -235,14 +218,19 @@ export const KanbanTask = ({
                 <input
                   className="place-self-start -mt-3 mx-1 ps-1 p-0 heading-md text-dark-font"
                   autoFocus
+                  required={true}
                   onKeyDown={(e) => {
                     if (e.key !== "Enter") return;
-                    else setIsEditTitleSelected(false);
+                    setIsEditTitleSelected(false);
                   }}
                   onBlur={() => setIsEditTitleSelected(false)}
-                  value={editTitle}
-                  onChange={(e) => setEditTitle(e.target.value)}
-                ></input>
+                  value={task.title}
+                  onChange={(e) => {
+                    if (e.target.value.length >= 1) {
+                      updateTaskTitle(task.Id, e.target.value);
+                    }
+                  }}
+                />
               ) : (
                 <h3
                   onClick={() => setIsEditTitleSelected(true)}
@@ -290,8 +278,8 @@ export const KanbanTask = ({
                     <label role="h4" className="heading-xs mb-1">
                       Description
                       <textarea
-                        value={editContent}
-                        onChange={(e) => setEditContent(e.target.value)}
+                        value={task.content}
+                        onChange={(e) => updateTask(task.Id, e.target.value)}
                         rows={4}
                         placeholder="Short item description goes here..."
                         className="w-full block border px-1 py-0.5 body-text-sm border-grayscale-300 rounded"
@@ -319,8 +307,9 @@ export const KanbanTask = ({
                       isModalsOpen={isModalsOpen}
                     >
                       <TaskMembersModal
-                        taskMembers={taskMembers}
-                        setTaskMembers={setTaskMembers}
+                        addTaskMember={addTaskMember}
+                        removeTaskMember={removeTaskMember}
+                        task={task}
                       />
                     </SubModal>
 
@@ -358,17 +347,6 @@ export const KanbanTask = ({
                         removeTaskDeadline={removeTaskDeadline}
                       />
                     </SubModal>
-                  </div>
-                </section>
-                <section>
-                  <h5 className="heading-xxs mb-2">Actions</h5>
-                  <div className="flex flex-col gap-2 min-w-max">
-                    <IconButton
-                      btnType="submit"
-                      iconName="Save"
-                      btnText="Save changes"
-                      handleOnClick={handleSave}
-                    />
                     <IconButton
                       iconName="Delete"
                       btnText="Delete task"

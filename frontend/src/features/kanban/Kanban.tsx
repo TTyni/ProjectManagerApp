@@ -293,7 +293,7 @@ export const Kanban = ({
     });
   };
 
-  const updateTaskMembers = (id: number | string, members: Member[]) => {
+  const addTaskMember = (id: number | string, newMember: Member) => {
     const ytasks = ykanban.get("tasks") as Y.Array<Task>;
     let changed = false;
     ytasks.forEach((task, i) => {
@@ -301,7 +301,22 @@ export const Kanban = ({
         changed = true;
         ytasks.doc?.transact(() => {
           ytasks.delete(i);
-          ytasks.insert(i, [{ ...task, members }]);
+          ytasks.insert(i, [{ ...task, members: [...task.members, newMember] }]);
+        });
+      }
+    });
+  };
+
+  const removeTaskMember = (id: number | string, newMember: Member) => {
+    const ytasks = ykanban.get("tasks") as Y.Array<Task>;
+    let changed = false;
+    ytasks.forEach((task, i) => {
+      const updatedMembers = task.members.filter((member) => member.id !== newMember.id);
+      if (task.Id === id && changed === false) {
+        changed = true;
+        ytasks.doc?.transact(() => {
+          ytasks.delete(i);
+          ytasks.insert(i, [{ ...task, members: updatedMembers}]);
         });
       }
     });
@@ -599,7 +614,8 @@ export const Kanban = ({
                     labelColors={arrayOfColors}
                     setIsModalsOpen={setIsModalsOpen}
                     isModalsOpen={isModalsOpen}
-                    updateTaskMembers={updateTaskMembers}
+                    addTaskMember={addTaskMember}
+                    removeTaskMember={removeTaskMember}
                   />
                 ))}
               </SortableContext>
@@ -632,7 +648,8 @@ export const Kanban = ({
                     labelColors={arrayOfColors}
                     setIsModalsOpen={setIsModalsOpen}
                     isModalsOpen={isModalsOpen}
-                    updateTaskMembers={updateTaskMembers}
+                    addTaskMember={addTaskMember}
+                    removeTaskMember={removeTaskMember}
                   />
                 </div>
               )}
@@ -655,7 +672,8 @@ export const Kanban = ({
                     labelColors={arrayOfColors}
                     setIsModalsOpen={setIsModalsOpen}
                     isModalsOpen={isModalsOpen}
-                    updateTaskMembers={updateTaskMembers}
+                    addTaskMember={addTaskMember}
+                    removeTaskMember={removeTaskMember}
                   />
                 </div>
               )}
