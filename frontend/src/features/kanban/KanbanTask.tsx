@@ -87,6 +87,7 @@ export const KanbanTask = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditTitleSelected, setIsEditTitleSelected] = useState(false);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+  const [title, setTitle] = useState(task.title);
 
   const openModal = () => {
     setIsModalOpen(true);
@@ -122,6 +123,15 @@ export const KanbanTask = ({
     }
   };
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if(e.target.value.trim() !== ""){
+      setTitle(e.target.value);
+    }
+    else {
+      setTitle("");
+    }
+  };
+
   return (
     <>
       <div
@@ -147,7 +157,7 @@ export const KanbanTask = ({
             <div className="grid col-span-2">
               {/* Task Deadline */}
               <section className="w-full mb-1.5">
-               
+
                 {task.deadline && (
                   <div
                     className={`rounded w-fit pt-0.5 px-2 text-center ${
@@ -157,9 +167,9 @@ export const KanbanTask = ({
                     }`}
                   >
                     <div className="label-text inline-flex items-center gap-1">
-                      <Clock size={14}/> 
-                      {task.deadline > new Date().getTime() 
-                        ? dateDifference(task.deadline) + " days left" 
+                      <Clock size={14}/>
+                      {task.deadline > new Date().getTime()
+                        ? dateDifference(task.deadline) + " days left"
                         : format(new Date(task.deadline), "d.M.yyyy")}
                     </div>
                   </div>
@@ -211,18 +221,28 @@ export const KanbanTask = ({
                 <input
                   className="place-self-start -mt-3 mx-1 ps-1 p-0 heading-md text-dark-font"
                   autoFocus
-                  required={true}
                   onKeyDown={(e) => {
-                    if (e.key !== "Enter") return;
-                    setIsEditTitleSelected(false);
-                  }}
-                  onBlur={() => setIsEditTitleSelected(false)}
-                  value={task.title}
-                  onChange={(e) => {
-                    if (e.target.value.length >= 1) {
-                      updateTaskTitle(task.Id, e.target.value);
+                    if (e.key === "Enter"){
+                      setIsEditTitleSelected(false);
+                      if(title){
+                        updateTaskTitle(task.Id, title);
+                      }
+                      else{
+                        setTitle(task.title);
+                      }
                     }
                   }}
+                  onBlur={() => {
+                    setIsEditTitleSelected(false);
+                    if(title){
+                      updateTaskTitle(task.Id, title);
+                    }
+                    else{
+                      setTitle(task.title);
+                    }
+                  }}
+                  value={title}
+                  onChange={(e) => handleChange(e)}
                 />
               ) : (
                 <h3
@@ -251,9 +271,9 @@ export const KanbanTask = ({
                       }`}
                     >
                       <div className="label-text inline-flex items-center gap-1">
-                        <Clock size={14}/> 
-                        {task.deadline > new Date().getTime() 
-                          ? dateDifference(task.deadline) + " days left" 
+                        <Clock size={14}/>
+                        {task.deadline > new Date().getTime()
+                          ? dateDifference(task.deadline) + " days left"
                           : format(new Date(task.deadline), "d.M.yyyy")}
                       </div>
                     </div>
@@ -345,7 +365,6 @@ export const KanbanTask = ({
           </dialog>
         </div>
       )}
-
       {isDeleteConfirmOpen && (
         <DeleteModal
           setConfirmDeleteEdit={setIsDeleteConfirmOpen}
