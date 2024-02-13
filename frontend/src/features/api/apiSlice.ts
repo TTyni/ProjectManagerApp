@@ -4,8 +4,6 @@ export interface User {
   id: number;
   email: string;
   name: string;
-  created_at: string;
-  updated_at: string;
 }
 
 export interface LoginRequest {
@@ -35,8 +33,6 @@ export interface Member {
 export interface Project {
   id: number;
   name: string;
-  created_at: string;
-  updated_at: string;
   pages: Page[];
   users: Member[];
 }
@@ -49,10 +45,7 @@ export interface EditProjectRequest {
 export interface Page {
   id: number;
   name: string;
-  content: Uint8Array | null;
   projectid: number;
-  created_at: string;
-  updated_at: string;
 }
 
 export interface AddPageRequest {
@@ -85,8 +78,6 @@ export interface NewPage {
 export interface ProjectUser {
   userid: number;
   projectid: number;
-  updated_at: Date;
-  created_at: Date;
   role: string;
 }
 
