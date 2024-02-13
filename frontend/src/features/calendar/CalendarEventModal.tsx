@@ -29,6 +29,7 @@ const CalendarEventModal = ({ events, currentMonth, day, yevents }: Props) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [newDate, setNewDate] = useState(day);
+  const [newDateOnCreate, setNewDateOnCreate] = useState(day);
   const [activeEdit, setActiveEdit] = useState<string>("");
 
   const closeModal = () => {
@@ -70,10 +71,14 @@ const CalendarEventModal = ({ events, currentMonth, day, yevents }: Props) => {
     yevents.push([
       {
         id: nanoid(),
-        day: newDate.toISOString(),
+        day: newDateOnCreate.toISOString(),
         eventTitle,
       },
     ]);
+    const newDate = new Date(day);
+    newDate.setHours(0,0,0,0);
+    setNewDateOnCreate(newDate);
+    setEventTitle("");
   };
 
   const setTime = (date: Date, eventDate: string) => {
@@ -86,7 +91,21 @@ const CalendarEventModal = ({ events, currentMonth, day, yevents }: Props) => {
     setNewDate(updatedDate);
   };
 
+  const setTimeOnCreate = (date: Date, eventDate: string) => {
+    const tempArr = eventDate.split(":");
+    const timeToBeAdded = {
+      hours: parseInt(tempArr[0]),
+      minutes: parseInt(tempArr[1]),
+    };
+    const updatedDate = add(date, timeToBeAdded);
+    setNewDateOnCreate(updatedDate);
+  };
+
   const screenDimensions = useScreenDimensions();
+
+  const sortByDate = (events: Event[]) => {
+    return events.slice().sort((a,b)=> new Date(a.day).getTime() - new Date(b.day).getTime());
+  };
 
   return (
     <>
@@ -105,7 +124,7 @@ const CalendarEventModal = ({ events, currentMonth, day, yevents }: Props) => {
           >
             {format(day, "d")}
           </li>
-          {events.map((event) =>
+          {sortByDate(events).map((event) =>
             isEqual(getMonth(event.day), getMonth(day)) &&
               isEqual(getDate(event.day), getDate(day)) &&
               isEqual(getYear(event.day), getYear(day)) && (
@@ -146,7 +165,7 @@ const CalendarEventModal = ({ events, currentMonth, day, yevents }: Props) => {
           </header>
           <main className="w-full mx-auto px-2">
             <div>
-              {events.map(
+              {sortByDate(events).map(
                 (event) =>
                   isEqual(getMonth(event.day), getMonth(day)) &&
                     isEqual(getDate(event.day), getDate(day)) &&
@@ -213,12 +232,17 @@ const CalendarEventModal = ({ events, currentMonth, day, yevents }: Props) => {
                 >
                   <input
                     type="time"
-                    defaultValue={format(newDate, "HH:mm")}
-                    onChange={(e) => setTime(day, e.target.value)}
+                    value={format(newDateOnCreate, "HH:mm")}
+                    required
+                    onChange={(e) => {
+                      if(e.target.value){
+                        setTimeOnCreate(day, e.target.value);
+                      }}}
                     className="px-3 body-text-md"
                   />
                   <input
                     required
+                    value={eventTitle}
                     onChange={(e) => setEventTitle(e.target.value)}
                     placeholder={"Add new event"}
                     className="px-3 body-text-md flex-1"
