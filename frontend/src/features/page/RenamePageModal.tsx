@@ -8,7 +8,6 @@ import { useEditPageMutation } from "../api/apiSlice";
 import { FieldErrors, useForm } from "react-hook-form";
 import { pageNameSchema } from "./pageValidation";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { DevTool } from "@hookform/devtools";
 
 // Context
 import { ModalContext } from "../../components/Modal";
@@ -28,7 +27,6 @@ export const RenamePageModal = ({ pageId, pageName }: RenamePageProps) => {
   const [formError, setFormError] = useState<null | string>(null);
 
   const {
-    control,
     register,
     formState: {isDirty, errors},
     handleSubmit,
@@ -49,9 +47,6 @@ export const RenamePageModal = ({ pageId, pageName }: RenamePageProps) => {
     if (canSave) {
       try {
         const page = await editPage({ id: pageId, name: formData.pageName }).unwrap();
-        // For development purposes
-        console.log("Form submitted");
-        console.log("Page:", page);
         if (page) {
           closeModal();
         }
@@ -85,6 +80,7 @@ export const RenamePageModal = ({ pageId, pageName }: RenamePageProps) => {
           <input
             type="text"
             {...register("pageName")}
+            autoFocus
             placeholder="e.g. To do"
             className="block w-full py-1.5 px-4 mt-1 body-text-md"
           />
@@ -107,9 +103,6 @@ export const RenamePageModal = ({ pageId, pageName }: RenamePageProps) => {
           </button>
         </section>
       </form>
-
-      {/* For development only */}
-      <DevTool control={control}/>
     </>
   );
 };

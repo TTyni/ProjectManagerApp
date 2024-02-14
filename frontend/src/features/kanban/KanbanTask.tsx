@@ -1,5 +1,5 @@
 // React
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 // Redux
 import { type Member } from "../api/apiSlice";
@@ -132,6 +132,17 @@ export const KanbanTask = ({
     }
   };
 
+  useEffect(() => {
+    const closeOnEscapePressed = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        closeModal();
+      }
+    };
+    document.addEventListener("keydown", closeOnEscapePressed);
+    return () =>
+      document.removeEventListener("keydown", closeOnEscapePressed);
+  }, []);
+
   return (
     <>
       <div
@@ -139,15 +150,18 @@ export const KanbanTask = ({
         style={style}
         {...attributes}
         {...listeners}
-        className={`w-full flex flex-col h-fit p-4 rounded ${
-          isDragging ? "bg-grayscale-300 opacity-50" : "bg-grayscale-100 "
+        className={`w-[calc(100%-6px)] flex flex-col h-fit p-4 rounded-sm focus:outline-none focus:ring-[3px] focus:ring-dark-blue-50 ${
+          isDragging ? "bg-grayscale-300 opacity-50" : "bg-grayscale-100"
         }`}
         onClick={openModal}
+        onKeyDown={(e) => {
+          if (e.key !== "Enter") return;
+          openModal();
+        }}
       >
         <div className={isDragging ? "invisible" : ""}>
           <div className="mb-6">
             <h4 className="heading-xs mb-1">{task.title}</h4>
-            {/* Line clamp needs fixing, this removes row changes when displaying content */}
             <p className="min-h-max line-clamp-3 body-text-xs whitespace-pre-wrap">
               {task.content}
             </p>
@@ -247,7 +261,12 @@ export const KanbanTask = ({
               ) : (
                 <h3
                   onClick={() => setIsEditTitleSelected(true)}
-                  className="place-self-start -mt-3 mx-2 heading-md text-dark-font"
+                  onKeyDown={(e) => {
+                    if (e.key !== "Enter") return;
+                    setIsEditTitleSelected(true);
+                  }}
+                  tabIndex={0}
+                  className="w-7/12 place-self-start -mt-3 mx-1 ps-1 rounded heading-md text-dark-font focus:outline-none focus:ring focus:ring-dark-blue-50"
                 >
                   {task.title}
                 </h3>
@@ -287,6 +306,7 @@ export const KanbanTask = ({
                         value={task.content}
                         onChange={(e) => updateTask(task.Id, e.target.value)}
                         rows={4}
+                        // autoFocus
                         placeholder="Short item description goes here..."
                         className="w-full block border px-1 py-0.5 body-text-sm border-grayscale-300 rounded"
                       />

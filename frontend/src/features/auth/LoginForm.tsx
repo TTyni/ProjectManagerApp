@@ -10,7 +10,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { FieldErrors, useForm } from "react-hook-form";
 import { loginUserSchema } from "./authValidation";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { DevTool } from "@hookform/devtools";
 
 // Components
 import { Eye, EyeOff } from "react-feather";
@@ -23,7 +22,6 @@ interface LoginFormValues {
 export const LoginForm = () => {
   const [loginUser, { isLoading }] = useLoginUserMutation();
   const {
-    control,
     formState: {isDirty, isSubmitting, errors},
     handleSubmit,
     register,
@@ -45,9 +43,7 @@ export const LoginForm = () => {
   const onHandleSubmit = async (formData: LoginFormValues) => {
     if (canSubmit) {
       try {
-        const user = await loginUser({ ...formData }).unwrap();
-        console.log("Login form submitted");
-        console.log("User:", user);
+        await loginUser({ ...formData }).unwrap();
         reset();
         setFormError(null);
         navigate("/");
@@ -70,7 +66,7 @@ export const LoginForm = () => {
   };
 
   const onError = (errors: FieldErrors<LoginFormValues>) => {
-    console.log("Form field errors:", errors);
+    console.error("Form field errors:", errors);
   };
 
   return (
@@ -90,8 +86,12 @@ export const LoginForm = () => {
             {...register("email")}
             placeholder="e.g. john.doe@mail.com"
             autoComplete="username"
-            className="body-text-md py-1.5 px-4 mt-1 w-full block focus:outline-none focus:ring focus:ring-dark-blue-50" />
-          <p className="text-center body-text-xs text-caution-200 mt-1">{errors.email?.message}</p>
+            className="body-text-md py-1.5 px-4 mt-1 w-full block focus:outline-none focus:ring focus:ring-dark-blue-50"
+          />
+          <p
+            className="text-center body-text-xs text-caution-200 mt-1">
+            {errors.email?.message}
+          </p>
         </label>
 
         <label
@@ -102,7 +102,8 @@ export const LoginForm = () => {
               type={showPassword ? "text" : "password"}
               {...register("password")}
               autoComplete="current-password"
-              className="body-text-md py-1.5 px-4 w-full inline-block focus:outline-none focus:ring focus:ring-dark-blue-50"/>
+              className="body-text-md py-1.5 px-4 w-full inline-block focus:outline-none focus:ring focus:ring-dark-blue-50"
+            />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
@@ -110,21 +111,32 @@ export const LoginForm = () => {
               {showPassword ? <Eye size={18}/> : <EyeOff size={18}/>}
             </button>
           </section>
-          <p className="text-center body-text-xs text-caution-200 mt-1">{errors.password?.message}</p>
-          <p className="text-center body-text-xs text-caution-200 mt-1">{formError}</p>
+          <p
+            className="text-center body-text-xs text-caution-200 mt-1">
+            {errors.password?.message}
+          </p>
+          <p
+            className="text-center body-text-xs text-caution-200 mt-1">
+            {formError}
+          </p>
         </label>
 
-        <button type="submit" disabled={isSubmitting} className="w-full btn-text-md focus:outline-none focus:ring focus:ring-dark-blue-50">Login</button>
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="w-full btn-text-md focus:outline-none focus:ring focus:ring-dark-blue-50">
+          Login
+        </button>
       </form>
 
-      <p className="body-text-sm text-dark-font mt-3 mb-1 text-center">If you don&#39;t yet have an account</p>
-      <Link to="/register" className="block body-text-md underline text-center text-dark-font hover:text-dark-blue-50 focus:outline-none focus:ring-0 focus:text-caution-100">
+      <p className="body-text-sm text-dark-font mt-3 mb-1 text-center">
+        If you don&#39;t yet have an account
+      </p>
+      <Link
+        to="/register"
+        className="block body-text-md underline text-center text-dark-font hover:text-dark-blue-50 focus:outline-none focus:ring-0 focus:text-caution-100">
         {redirectLinkText}
       </Link>
-
-      {/* For development only */}
-      <DevTool control={control}/>
-
     </section>
   );
 };
