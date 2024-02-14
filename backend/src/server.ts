@@ -62,12 +62,15 @@ const isProduction = process.env.NODE_ENV === "production";
 
 let redisStore = undefined;
 if (process.env.REDIS_URL) {
-  const redisClient = createClient({
+  console.log("Connection to redis instance:", process.env.REDIS_URL);
+  const redisClient = await createClient({
     url: process.env.REDIS_URL,
     password: process.env.REDIS_PASSWORD,
-  });
-  console.log("Connection to", process.env.REDIS_URL);
-  redisClient.connect().catch(console.error);
+    // https://learn.microsoft.com/en-us/azure/azure-cache-for-redis/cache-best-practices-connection#idle-timeout
+    pingInterval: 60*1000,
+  })
+    .on("error", err => console.error("Redis Client Error", err))
+    .connect();
 
   redisStore = new RedisStore({
     client: redisClient,
