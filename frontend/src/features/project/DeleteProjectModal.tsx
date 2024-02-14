@@ -35,13 +35,10 @@ export const DeleteProjectModal = ({btnText, btnStyling}: IProps) => {
     if (!isLoading) {
       try {
         const project = await deleteProject(projectId).unwrap();
-        console.log("Project deleted", project);
         if (project) {
           closeModal();
           navigate("..", { relative: "path" });
           navigate(0);
-          // TO DO: Find better solution for this
-        //   window.location.reload();
         }
       } catch (err) {
         console.error("Failed to delete the project", err);

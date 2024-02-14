@@ -95,7 +95,6 @@ export const PageWrapper = ({ pageId }: { pageId: string; }) => {
         return;
       }
       if (component.uuid === uuid) {
-        console.log("moiving up", uuid);
         yarray.delete(i, 1);
         yarray.insert(i - 1, [component]);
       }
@@ -113,8 +112,6 @@ export const PageWrapper = ({ pageId }: { pageId: string; }) => {
       }
     });
   };
-
-  // yarray.delete(0, yarray.length);
 
   const getComponent = (component: Component) => {
     const yContent = ymap.get(component.uuid);
