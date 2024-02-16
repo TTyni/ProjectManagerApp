@@ -3,7 +3,6 @@ import { nanoid } from "@reduxjs/toolkit";
 import {
   add,
   format,
-  isSameDay,
   isSameMonth,
   isToday,
 } from "date-fns";
@@ -109,15 +108,8 @@ const CalendarEventModal = ({ events, currentMonth, day, yevents }: Props) => {
 
   const screenDimensions = useScreenDimensions();
 
-  const sortByDate = (events: Event[]) => {
-    return events.slice().sort((a,b)=> new Date(a.day).getTime() - new Date(b.day).getTime());
-  };
-
   const hasEvent = () => {
-    let hasEvent = false;
-    {events.map((event) =>{
-      isSameDay(event.day, day) && (hasEvent = true);});}
-    return hasEvent;
+    return events.length > 0;
   };
 
   useEffect(() => {
@@ -141,7 +133,7 @@ const CalendarEventModal = ({ events, currentMonth, day, yevents }: Props) => {
           setIsModalOpen(true);
         }}
         className={`aspect-square cursor-pointer rounded-none bg-grayscale-200 justify-start
-        border-b border-r border-grayscale-300 focus:bg-grayscale-300/50 focus:outline-none 
+        border-b border-r border-grayscale-300 focus:bg-grayscale-300/50 focus:outline-none
         hover:bg-primary-200 overflow-hidden inline-block w-full h-full
         ${isSameMonth(day, currentMonth)
       ? (hasEvent() && screenDimensions.width < 768 ? "text-primary-300" : "text-dark-font")
@@ -157,7 +149,7 @@ const CalendarEventModal = ({ events, currentMonth, day, yevents }: Props) => {
           >
             {format(day, "d")}
           </li>
-          {sortByDate(events).map((event) => isSameDay(event.day, day) && (
+          {events.map((event) =>
             <li
               key={event.id}
               className="ml-1 hidden md:block body-text-sm"
@@ -167,7 +159,6 @@ const CalendarEventModal = ({ events, currentMonth, day, yevents }: Props) => {
                 ? event.eventTitle.slice(0, 7) + "..."
                 : event.eventTitle}
             </li>
-          )
           )}
         </ul>
       </section>
@@ -191,16 +182,16 @@ const CalendarEventModal = ({ events, currentMonth, day, yevents }: Props) => {
             </h3>
           </header>
           <main className="w-full mx-auto px-2 text-dark-font">
-            {events.find((event) => isSameDay(event.day, day))
+            {hasEvent()
               ? <div>
-                {sortByDate(events).map((event) => isSameDay(event.day, day) && (
+                {events.map((event) => (
                   <div
                     className="flex flex-row items-center justify-between cursor-pointer border-b-2 border-grayscale-200 focus:outline-none focus:ring focus:ring-dark-blue-50 rounded"
                     key={event.id}
                   >
                     {event.id === activeEdit ? (
                       <section className="flex flex-col sm:flex-row w-full my-2">
-                        <div className="inline-flex items-center gap-2"> 
+                        <div className="inline-flex items-center gap-2">
                           <input
                             type="time"
                             autoFocus
@@ -232,7 +223,7 @@ const CalendarEventModal = ({ events, currentMonth, day, yevents }: Props) => {
                     ) : (
                       <section
                         onClick={() => setActiveEdit(event.id)}
-                        className="w-full body-text-md my-2 focus:outline-none focus:ring focus:ring-dark-blue-50 rounded" 
+                        className="w-full body-text-md my-2 focus:outline-none focus:ring focus:ring-dark-blue-50 rounded"
                         tabIndex={0}
                         onKeyDown={(e) => {
                           if (e.key !== "Enter") return;
