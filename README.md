@@ -34,7 +34,7 @@ This project was made as group project that was part of Buutti Trainee Academy's
 
 ## How to run project locally<a name="install"></a>
 
-### Docker compose
+### With Docker compose
 To run application with docker compose:
 
 ````
@@ -42,7 +42,7 @@ copy .env.example to .env
 docker-compose up --build
 ````
 
-### or locally with npm:
+### or locally with npm
 backend:
 
 ````
