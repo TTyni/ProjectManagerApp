@@ -43,6 +43,7 @@ interface Props {
   deleteLabelStatus: (taskId: string, id: string) => void;
   editLabel: (id: string | number, name: string, color: string) => void;
   deleteLabel: (id: string | number) => void;
+  isUserViewer: boolean;
 }
 
 export const KanbanTask = ({
@@ -63,6 +64,7 @@ export const KanbanTask = ({
   deleteLabelStatus,
   setTaskDeadline,
   removeTaskDeadline,
+  isUserViewer,
 }: Props) => {
   const {
     attributes,
@@ -245,7 +247,7 @@ export const KanbanTask = ({
               >
                 <X size={20} />
               </button>
-              {isEditTitleSelected ? (
+              {isEditTitleSelected && !isUserViewer ? (
                 <input
                   maxLength={15}
                   className="place-self-start -mt-3 mx-1 ps-1 p-0 heading-md text-dark-font"
@@ -316,14 +318,19 @@ export const KanbanTask = ({
                 <section>
                   <form>
                     <label role="h4" className="heading-xs mb-1">
-                      Description
-                      <textarea
-                        value={task.content}
-                        onChange={(e) => updateTask(task.Id, e.target.value)}
-                        rows={4}
-                        placeholder="Short item description goes here..."
-                        className="w-full block border px-1 py-0.5 body-text-sm border-grayscale-300 rounded"
-                      />
+                      {(!isUserViewer || task.content.trim() !== "") && "Description" }
+                      {isUserViewer
+                        ?
+                        <p className="body-text-sm break-words">{task.content}</p>
+                        :
+                        <textarea
+                          value={task.content}
+                          onChange={(e) => updateTask(task.Id, e.target.value)}
+                          rows={4}
+                          placeholder="Short item description goes here..."
+                          className="w-full block border px-1 py-0.5 body-text-sm border-grayscale-300 rounded"
+                        />
+                      }
                     </label>
                   </form>
                 </section>
@@ -333,7 +340,7 @@ export const KanbanTask = ({
                   {displayTaskLabels}
                 </section>
               </section>
-
+              {!isUserViewer &&
               <aside className="grid col-span-3 sm:col-span-2 min-w-max gap-4">
                 <section>
                   <h5 className="heading-xxs mb-2">Add to task</h5>
@@ -395,6 +402,7 @@ export const KanbanTask = ({
                   </div>
                 </section>
               </aside>
+              }
             </main>
           </dialog>
         </div>
