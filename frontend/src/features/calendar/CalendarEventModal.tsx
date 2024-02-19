@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { nanoid } from "@reduxjs/toolkit";
 import {
@@ -30,6 +30,7 @@ const CalendarEventModal = ({ events, currentMonth, day, yevents }: Props) => {
   const [newDate, setNewDate] = useState(day);
   const [newDateOnCreate, setNewDateOnCreate] = useState(day);
   const [activeEdit, setActiveEdit] = useState<string>("");
+  const calendarModalRef = useRef(null as HTMLDialogElement | null);
 
   const projectId = parseInt(useParams().projectId!);
   const { data: project } = useGetProjectQuery(projectId);
@@ -114,15 +115,44 @@ const CalendarEventModal = ({ events, currentMonth, day, yevents }: Props) => {
   };
 
   useEffect(() => {
-    const closeOnEscapePressed = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        closeModal();
-      }
-    };
-    document.addEventListener("keydown", closeOnEscapePressed);
-    return () =>
-      document.removeEventListener("keydown", closeOnEscapePressed);
-  }, []);
+    if (isModalOpen) {
+      const calendarModalElement = calendarModalRef.current;
+      const focusableElements = calendarModalElement!.querySelectorAll(
+        "button, input, select, textarea, [tabindex]:not([tabindex=\"-1\"])"
+      );
+
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements[focusableElements.length - 1];
+
+      const handleTabKeyPress = (event: KeyboardEvent) => {
+        if (event.key === "Tab") {
+          if (event.shiftKey && document.activeElement === firstElement) {
+            event.preventDefault();
+            (lastElement as HTMLDialogElement).focus();
+          } else if (
+            !event.shiftKey &&
+            document.activeElement === lastElement
+          ) {
+            event.preventDefault();
+            (firstElement as HTMLDialogElement).focus();
+          }
+        }
+      };
+
+      const closeOnEscapePressed = (e: KeyboardEvent) => {
+        if (e.key === "Escape") {
+          closeModal();
+        }
+      };
+      document.addEventListener("keydown", closeOnEscapePressed);
+      calendarModalElement?.addEventListener("keydown", handleTabKeyPress);
+      return () => {
+
+        document.removeEventListener("keydown", closeOnEscapePressed);
+        calendarModalElement?.removeEventListener("keydown", handleTabKeyPress);
+      };
+    }
+  }, [isModalOpen]);
 
   return (
     <>
@@ -165,16 +195,19 @@ const CalendarEventModal = ({ events, currentMonth, day, yevents }: Props) => {
       </section>
       {isModalOpen &&
       <div
-        onClick={closeModal}
+        onMouseDown={closeModal}
         className="fixed flex justify-center inset-0 z-30 items-center transition-colors bg-dark-blue-100/40">
         <dialog
-          onClick={(e) => e.stopPropagation()}
+          tabIndex={-1}
+          ref={calendarModalRef}
+          onMouseDown={(e) => e.stopPropagation()}
           className={`fixed p-2 pb-4 flex flex-col inset-0 z-30 max-h-screen sm:justify-start items-left overflow-x-hidden overflow-y-auto
             outline-none sm:rounded focus:outline-none shadow transition-all
             ${screenDimensions.height < 500 ? "min-h-screen w-full" : "w-full h-full sm:h-fit sm:w-fit sm:max-w-2xl"}`}>
           <header className="flex flex-col mb-2 place-items-end">
             <button
               onClick={closeModal}
+              aria-label="Close modal"
               className="p-1 text-dark-font bg-grayscale-0 hover:bg-grayscale-0">
               <X size={20} />
             </button>

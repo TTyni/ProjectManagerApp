@@ -7,6 +7,7 @@ import { type Member, type Project } from "../api/apiSlice";
 // Components
 import { TaskMember } from "./TaskMemberItem";
 import { type Task } from "./Kanban";
+import useScreenDimensions from "../../utils/screenDimensions";
 
 interface IProps {
   task: Task;
@@ -16,11 +17,12 @@ interface IProps {
 }
 
 export const TaskMembersModal = ({ task, addTaskMember, removeTaskMember, project }: IProps ) => {
+  const screenDimensions = useScreenDimensions();
 
   return (
     <div className="mx-2">
       <h5 className="heading-xs mb-2">Project members</h5>
-      <section>
+      <section className={`${screenDimensions.height < 500 ? "overflow-visible" : "max-h-80 overflow-auto"}`}>
         {project!.users.map((member: Member) => {
           return (
             <TaskMember

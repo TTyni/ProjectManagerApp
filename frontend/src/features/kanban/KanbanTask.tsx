@@ -1,5 +1,5 @@
 // React
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 // Redux
 import { type Member, Project } from "../api/apiSlice";
@@ -92,6 +92,7 @@ export const KanbanTask = ({
   const [isEditTitleSelected, setIsEditTitleSelected] = useState(false);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const [title, setTitle] = useState(task.title);
+  const taskModalRef = useRef(null as HTMLDialogElement | null);
 
   const openModal = () => {
     setIsModalOpen(true);
@@ -137,15 +138,48 @@ export const KanbanTask = ({
   };
 
   useEffect(() => {
-    const closeOnEscapePressed = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        closeModal();
-      }
-    };
-    document.addEventListener("keydown", closeOnEscapePressed);
-    return () =>
-      document.removeEventListener("keydown", closeOnEscapePressed);
-  }, []);
+    if (isModalOpen) {
+      const taskModalElement = taskModalRef.current;
+      const focusableElements = taskModalElement!.querySelectorAll(
+        "button, input, select, textarea, [tabindex]:not([tabindex=\"-1\"])"
+      );
+
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements[focusableElements.length - 1];
+
+      const handleTabKeyPress = (event: KeyboardEvent) => {
+        if (event.key === "Tab") {
+          if (event.shiftKey && document.activeElement === firstElement) {
+            event.preventDefault();
+            (lastElement as HTMLDialogElement).focus();
+          } else if (
+            !event.shiftKey &&
+            document.activeElement === lastElement
+          ) {
+            event.preventDefault();
+            (firstElement as HTMLDialogElement).focus();
+          }
+        }
+      };
+
+      const closeOnEscapePressed = (e: KeyboardEvent) => {
+        if (e.key === "Escape") {
+          closeModal();
+        }
+      };
+      document.addEventListener("keydown", closeOnEscapePressed);
+      taskModalElement?.addEventListener("keydown", handleTabKeyPress);
+      return () => {
+
+        document.removeEventListener("keydown", closeOnEscapePressed);
+        taskModalElement?.removeEventListener("keydown", handleTabKeyPress);
+      };
+    }
+  }, [isModalOpen]);
+
+  if (!task.labels) {
+    return null;
+  }
 
   if (!task.labels) {
     return null;
@@ -228,14 +262,16 @@ export const KanbanTask = ({
 
       {isModalOpen && (
         <div
-          onClick={closeModal}
+          onMouseDown={closeModal}
           className={`fixed flex justify-center inset-0 z-30 items-center transition-colors ${
             isModalOpen ? "visible bg-dark-blue-100/40" : "invisible"
           }`}
         >
           <dialog
-            onClick={(e) => e.stopPropagation()}
-            className={`max-h-screen min-w-[400px] fixed p-2 pb-4 flex flex-col inset-0 z-30 sm:justify-start items-left overflow-x-hidden overflow-y-auto outline-none sm:rounded focus:outline-none shadow transition-all
+            tabIndex={-1}
+            ref={taskModalRef}
+            onMouseDown={(e) => e.stopPropagation()}
+            className={`max-h-screen fixed p-2 pb-4 flex flex-col inset-0 z-30 sm:justify-start items-left overflow-x-hidden overflow-y-auto outline-none sm:rounded focus:outline-none shadow transition-all
           ${
         screenDimensions.height < 500
           ? "min-h-screen w-full"
@@ -245,6 +281,7 @@ export const KanbanTask = ({
             <header className="w-full flex flex-col mb-2 place-items-end">
               <button
                 onClick={closeModal}
+                aria-label="Close task"
                 className="p-1 text-dark-font bg-grayscale-0 hover:bg-grayscale-0"
               >
                 <X size={20} />
@@ -302,13 +339,13 @@ export const KanbanTask = ({
                   {/* Task Deadline */}
                   {task.deadline && (
                     <div
-                      className={`rounded w-fit pt-0.5 px-2 text-center ${
+                      className={`rounded min-w-max w-fit pt-0.5 px-2 text-center ${
                         dateDifference(task.deadline) > 2
                           ? "bg-success-100"
                           : "bg-caution-100"
                       }`}
                     >
-                      <div className="label-text inline-flex items-start gap-1 ">
+                      <div className="label-text inline-flex items-start gap-1">
                         <Clock size={14}/>
                         {task.deadline > new Date().getTime()
                           ? dateDifference(task.deadline) + " days left"
@@ -320,6 +357,7 @@ export const KanbanTask = ({
                 <section>
                   <form>
                     <label role="h4" className="heading-xs mb-1">
+                      Description
                       {(!isUserViewer || task.content.trim() !== "") && "Description" }
                       {isUserViewer
                         ?

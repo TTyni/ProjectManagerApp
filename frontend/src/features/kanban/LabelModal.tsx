@@ -4,6 +4,7 @@ import { CreateLabelModal } from "./CreateLabelModal";
 import { Square, CheckSquare } from "react-feather";
 import { EditLabelModal } from "./EditLabelModal";
 import { SubModal, SubModalContext } from "./SubModal";
+import useScreenDimensions from "../../utils/screenDimensions";
 
 interface Props {
   task: Task;
@@ -31,6 +32,7 @@ export const LabelModal = ({
   deleteLabelStatus,
 }: Props) => {
   const taskLabelIds = task.labels?.map((label) => label.id) ?? [];
+  const screenDimensions = useScreenDimensions();
 
   const { closeAllModals } = useContext(SubModalContext);
 
@@ -42,31 +44,35 @@ export const LabelModal = ({
       setIsModalsOpen(false);
     }
   };
+
+  const handleCheckboxToggle = (labelId: string | number, taskId: string) => {
+    taskLabelIds.includes(labelId) ? deleteLabelStatus(taskId, labelId.toString()) : updateLabelStatus(taskId, labelId.toString());
+  };
+
   return (
     <>
-      <div className="grid grid-flow-row gap-1">
+      <div className={`grid grid-flow-row gap-1 p-1 ${screenDimensions.height < 500 ? "overflow-visible" : "max-h-80 overflow-auto"}`}>
         {labels.map((label) => (
           <div
             key={label.id}
-            className="inline-flex place-items-center justify-center gap-2 m-auto"
+            className="w-full inline-flex place-items-center justify-center gap-2 m-auto"
           >
-            <div className="mx-4">
-              {taskLabelIds.includes(label.id) ? (
-                <CheckSquare
-                  onClick={() => {
-                    deleteLabelStatus(task.Id, label.id.toString());
-                  }}
-                />
-              ) : (
-                <Square
-                  onClick={() => {
-                    updateLabelStatus(task.Id, label.id.toString());
-                  }}
-                />
-              )}
+            <div
+              role="button"
+              tabIndex={0}
+              aria-label={taskLabelIds.includes(label.id) ? "Unselect label" : "Select label"}
+              onClick={() => handleCheckboxToggle(label.id, task.Id)}
+              onKeyDown={(e) => {
+                if (e.key !== "Enter") return;
+                taskLabelIds.includes(label.id) ? deleteLabelStatus(task.Id, label.id.toString()) : updateLabelStatus(task.Id, label.id.toString());
+              }}
+              className="p-1 focus:outline-none focus:ring focus:ring-dark-blue-50 rounded"
+            >
+              {taskLabelIds.includes(label.id) ? <CheckSquare /> : <Square />}
             </div>
             <div
-              className={`py-1.5 text-center label-text rounded w-60 ${label.color}`}
+              onClick={() => handleCheckboxToggle(label.id, task.Id)}
+              className={`py-1.5 text-center label-text rounded w-full justify-self-stretch ${label.color} `}
             >
               {label.name}
             </div>

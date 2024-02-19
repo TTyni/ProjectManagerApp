@@ -1,6 +1,6 @@
 import { useContext, useState } from "react";
 import { ColorModal } from "./ColorModal";
-import { Labels } from "./Kanban";
+import type { Labels } from "./Kanban";
 import { FieldErrors, useForm } from "react-hook-form";
 import { createLabelSchema } from "./labelValidation";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -76,6 +76,7 @@ export const CreateLabelModal = ({
           <input
             type="text"
             {...register("name")}
+            autoFocus
             placeholder="Title for label"
             className="block w-full body-text-sm py-1 px-2 mt-1.5 border-grayscale-300"
           />
@@ -94,8 +95,8 @@ export const CreateLabelModal = ({
         </label>
         <div className="grid grid-cols-3 gap-2 mt-1.5">
           {labelColors.map((label) => (
-            <div key={label.id} 
-              className={label.color === selectedColor ? "outline outline-grayscale-400 rounded" : ""} 
+            <div key={label.id}
+              className={label.color === selectedColor ? "outline outline-grayscale-400 rounded" : ""}
               onClick={() => setSelectedColor(label.color)}>
               <ColorModal
                 setValue={setValue}
