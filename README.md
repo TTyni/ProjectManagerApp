@@ -34,20 +34,31 @@ This project was made as group project that was part of Buutti Trainee Academy's
 
 ## How to run project locally<a name="install"></a>
 
-To run only database in docker run following command:
+### Docker compose
+To run application with docker compose:
 
 ````
 copy .env.example to .env
 docker-compose up --build
 ````
 
-and start backend on ./backend by following command:
+### or locally with npm:
+backend:
 
 ````
+cd backend
+cp ..env.example .env
 npm install
 npm run dev
 ````
 
+frontend:
+
+````
+cd frontned
+npm install
+npm run dev
+````
 ## Deployment<a name="deployment"></a>
 
 Project Manager App is deployed to Microsoft Azure: Cloud Computing Services.
