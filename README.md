@@ -47,7 +47,7 @@ backend:
 
 ````
 cd backend
-cp ..env.example .env
+cp .env.example .env
 npm install
 npm run dev
 ````
