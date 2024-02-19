@@ -13,9 +13,7 @@ import { DeleteModal } from "../../components/DeleteModal";
 
 // Types and Interfaces
 import type { Column, Labels, Task } from "./Kanban";
-import { useGetProjectQuery, type Member } from "../api/apiSlice";
-import { useAppSelector } from "../../app/hooks";
-import { useParams } from "react-router-dom";
+import { type Project, type Member } from "../api/apiSlice";
 
 interface Props {
   removeTaskDeadline: (id: string | number) => void;
@@ -42,6 +40,8 @@ interface Props {
   deleteLabel: (id: string | number) => void;
   addTaskMember: (id: number | string, newMember: Member) => void;
   removeTaskMember: (id: number | string, newMember: Member) => void;
+  project: Project | undefined;
+  isUserViewer: boolean;
 }
 
 export const KanbanColumn = (props: Props) => {
@@ -67,6 +67,8 @@ export const KanbanColumn = (props: Props) => {
     deleteLabelStatus,
     setTaskDeadline,
     removeTaskDeadline,
+    project,
+    isUserViewer,
   } = props;
 
   const [edit, setEdit] = useState(false);
@@ -75,14 +77,6 @@ export const KanbanColumn = (props: Props) => {
   const taskIds = useMemo(() => {
     return tasks.map((element) => element.Id);
   }, [tasks]);
-
-  const projectId = parseInt(useParams().projectId!);
-  const { data: project } = useGetProjectQuery(projectId);
-  const userId = useAppSelector(state => state.auth.user?.id);
-
-  const isUserViewer = useMemo(() =>
-    project?.users.some(user => user.id === userId && user.role === "viewer") ?? true
-  ,[project, userId]);
 
   const {
     attributes,
@@ -206,6 +200,7 @@ export const KanbanColumn = (props: Props) => {
         <SortableContext items={taskIds} disabled={isUserViewer}>
           {tasks.map((element) => (
             <KanbanTask
+              project={project}
               removeTaskDeadline={removeTaskDeadline}
               setTaskDeadline={setTaskDeadline}
               deleteLabel={deleteLabel}

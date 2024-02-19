@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 
 // Redux
-import { type Member } from "../api/apiSlice";
+import { type Member, Project } from "../api/apiSlice";
 
 // DND Kit
 import { useSortable } from "@dnd-kit/sortable";
@@ -43,6 +43,7 @@ interface Props {
   deleteLabelStatus: (taskId: string, id: string) => void;
   editLabel: (id: string | number, name: string, color: string) => void;
   deleteLabel: (id: string | number) => void;
+  project: Project | undefined;
   isUserViewer: boolean;
 }
 
@@ -64,6 +65,7 @@ export const KanbanTask = ({
   deleteLabelStatus,
   setTaskDeadline,
   removeTaskDeadline,
+  project,
   isUserViewer,
 }: Props) => {
   const {
@@ -354,6 +356,7 @@ export const KanbanTask = ({
                       isModalsOpen={isModalsOpen}
                     >
                       <TaskMembersModal
+                        project={project}
                         addTaskMember={addTaskMember}
                         removeTaskMember={removeTaskMember}
                         task={task}
