@@ -360,12 +360,12 @@ export const KanbanTask = ({
                       {(!isUserViewer || task.content.trim() !== "") && "Description" }
                       {isUserViewer
                         ?
-                        <p className="body-text-sm break-words whitespace-pre-wrap">{task.content}</p>
+                        <p className={`body-text-sm break-words whitespace-pre-wrap ${screenDimensions.height < 500 ? "" : "max-h-80 overflow-auto"}`}>{task.content}</p>
                         :
                         <textarea
                           value={task.content}
                           onChange={(e) => updateTask(task.Id, e.target.value)}
-                          rows={4}
+                          rows={8}
                           placeholder="Short item description goes here..."
                           className="w-full block border px-1 py-0.5 body-text-sm border-grayscale-300 rounded"
                         />
