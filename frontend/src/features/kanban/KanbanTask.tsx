@@ -360,7 +360,7 @@ export const KanbanTask = ({
                       {(!isUserViewer || task.content.trim() !== "") && "Description" }
                       {isUserViewer
                         ?
-                        <p className="body-text-sm break-words">{task.content}</p>
+                        <p className="body-text-sm break-words whitespace-pre-wrap">{task.content}</p>
                         :
                         <textarea
                           value={task.content}
