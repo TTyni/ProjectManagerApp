@@ -46,6 +46,7 @@ docker-compose up --build
 backend:
 
 ````
+docker compose up db
 cd backend
 cp .env.example .env
 npm install
