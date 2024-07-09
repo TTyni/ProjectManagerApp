@@ -62,9 +62,7 @@ npm run dev
 ````
 ## Deployment<a name="deployment"></a>
 
-Project Manager App is deployed to Microsoft Azure: Cloud Computing Services.
-
-Link to project: https://projektimanageri.azurewebsites.net/
+Project Manager App was deployed to Microsoft Azure: Cloud Computing Services.
 
 ## Future code development <a name= "future-dev"></a>
 
